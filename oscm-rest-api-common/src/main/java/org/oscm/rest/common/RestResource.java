@@ -8,8 +8,6 @@
 
 package org.oscm.rest.common;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import java.net.URI;
 import java.util.List;
 
