@@ -5,14 +5,15 @@
   <parent>
     <artifactId>oscm-commons</artifactId>
     <groupId>org.oscm</groupId>
-    <version>1.0</version>
+    <version>1.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>oscm-common</artifactId>
+  <version>1.1</version>
 
   <dependencies>
     <dependency>
-      <groupId>com.github.servicecatalog.oscm-external-interfaces</groupId>
+      <groupId>com.github.servicecatalog.oscm-interfaces</groupId>
       <artifactId>oscm-extsvc-internal</artifactId>
     </dependency>
 
@@ -40,6 +41,19 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
