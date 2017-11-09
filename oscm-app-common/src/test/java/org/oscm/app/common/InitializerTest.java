@@ -26,6 +26,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -231,6 +232,7 @@ public class InitializerTest {
     }
 
     @Test
+    @Ignore
     public void testLogging() throws Exception {
 
         File log4jFile = createLog4jFile();
