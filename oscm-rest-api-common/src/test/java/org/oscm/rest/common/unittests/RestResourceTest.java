@@ -8,7 +8,6 @@
 
 package org.oscm.rest.common.unittests;
 
-import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
