@@ -7,7 +7,7 @@
 
     <groupId>org.oscm</groupId>
     <artifactId>oscm-commons</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -19,6 +19,7 @@
         <module>oscm-common</module>
         <module>oscm-rest-api-common</module>
         <module>oscm-app-common</module>
+        <module>oscm-webservices-client</module>
     </modules>
 
     <repositories>
@@ -53,7 +54,7 @@
             <dependency>
                 <groupId>org.oscm</groupId>
                 <artifactId>oscm-common</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
             </dependency>
 
             <dependency>
@@ -187,6 +188,23 @@
                 <artifactId>cxf-rt-rs-client</artifactId>
                 <version>3.1.10</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>wsdl4j</groupId>
+                <artifactId>wsdl4j</artifactId>
+                <version>1.6.3</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
