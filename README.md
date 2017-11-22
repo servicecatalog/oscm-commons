@@ -9,4 +9,36 @@
 [![duplicated_lines_density](https://sonarcloud.io/api/badges/measure?key=org.oscm:oscm-commons&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard/index/org.oscm:oscm-commons)
 # oscm-commons
 
-work in progress.
+
+
+You can use it as follows:
+```
+<repositories>
+  <repository>
+  <id>jitpack.io</id>
+  <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+
+<dependency>
+  <groupId>com.github.servicecatalog</groupId>
+  <artifactId>oscm-commons</artifactId>
+  <version>1.3</version>
+</dependency>
+```
+or more specific
+```
+<repositories>
+  <repository>
+  <id>jitpack.io</id>
+  <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+
+<dependency>
+  <groupId>com.github.servicecatalog.oscm-commons</groupId>
+  <artifactId>oscm-common</artifactId>
+  <version>1.3</version>
+</dependency>
+```
+
