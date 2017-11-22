@@ -220,21 +220,6 @@
                         <target>1.8</target>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.2.0</version>
-                    <configuration>
-                        <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
-                        <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
-                        <archive>
-                            <manifest>
-                                <addClasspath>true</addClasspath>
-                                <classpathPrefix>lib/</classpathPrefix>
-                            </manifest>
-                        </archive>
-                    </configuration>
-
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>

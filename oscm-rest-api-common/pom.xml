@@ -6,12 +6,12 @@
   <parent>
     <artifactId>oscm-commons</artifactId>
     <groupId>org.oscm</groupId>
-    <version>1.2</version>
+    <version>1.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>oscm-rest-api-common</artifactId>
-  <version>1.2</version>
+  <version>1.3</version>
 
   <dependencies>
     <dependency>
