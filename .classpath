@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="oscm-app-common/src/main/java"/>
+	<classpathentry kind="src" path="oscm-app-common/src/test/java"/>
+	<classpathentry kind="src" path="oscm-common/src/main/java"/>
+	<classpathentry kind="src" path="oscm-common/src/test/java"/>
+	<classpathentry kind="src" path="oscm-rest-api-common/src/main/java"/>
+	<classpathentry kind="src" path="oscm-rest-api-common/src/test/java"/>
+	<classpathentry kind="src" path="oscm-webservices-client/src/main/java"/>
+	<classpathentry kind="lib" path="oscm-common/target/oscm-common.jar"/>
+	<classpathentry kind="output" path="oscm-app-common-unittests/bin"/>
+</classpath>

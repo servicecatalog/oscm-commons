@@ -18,7 +18,10 @@
     <modules>
         <module>oscm-common</module>
         <module>oscm-rest-api-common</module>
-        <module>oscm-app-common</module>
+        <!--
+          <module>oscm-app-common</module>
+          FIXME oscm-common and oscm-app-common duplicate with https://github.com/servicecatalog/oscm-app  
+         -->
         <module>oscm-webservices-client</module>
     </modules>
 
@@ -34,25 +37,25 @@
             <dependency>
                 <groupId>com.github.servicecatalog.oscm-interfaces</groupId>
                 <artifactId>oscm-extsvc-provisioning</artifactId>
-                <version>1.2</version>
+                <version>master-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.servicecatalog.oscm-interfaces</groupId>
                 <artifactId>oscm-extsvc</artifactId>
-                <version>1.2</version>
+                <version>master-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.servicecatalog.oscm-interfaces</groupId>
                 <artifactId>oscm-app-extsvc</artifactId>
-                <version>1.2</version>
+                <version>master-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.servicecatalog.oscm-interfaces</groupId>
                 <artifactId>oscm-extsvc-internal</artifactId>
-                <version>1.2</version>
+                <version>master-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
