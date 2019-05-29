@@ -1,19 +1,15 @@
-# Ignore files
-*.bak
-*.class
-*.obj
-*.tmp
+# Intelij
+.idea/
 *.iml
-*~
 
-# Ignore folders
-Debug/
-Release/
-bin/
-build/
-debug/
-release/
-temp/
+# Maven
+target/
+
+# Eclipse
+.project
+.settings
+.classpath
+
+#Unit tests
 logs/
-.settings/
-/oscm.iml
+
