@@ -109,7 +109,7 @@ public class HeadersTest {
           checkFile(fileName, "Copyright FUJITSU LIMITED");
         } else if (fileName.toLowerCase().endsWith(".xml")
             || fileName.toLowerCase().endsWith(".xhtml")) {
-          if (fileName.contains("TechnicalServiceImportEmptyFile.xml")) {
+          if (fileName.contains("TechnicalServiceImportEmptyFile.xml") || fileName.contains("target")) {
             continue;
           }
           checkFile(fileName, "Copyright FUJITSU LIMITED");
