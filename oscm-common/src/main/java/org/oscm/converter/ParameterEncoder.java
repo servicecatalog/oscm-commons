@@ -1,10 +1,13 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2017
+ *  Copyright FUJITSU LIMITED 2018
  *******************************************************************************/
 
 package org.oscm.converter;
 
-import java.util.Base64;
+import java.io.IOException;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 /**
  * This class is responsible to offer the functionality to encode and decode
@@ -12,6 +15,9 @@ import java.util.Base64;
  * is base64.
  */
 public class ParameterEncoder {
+
+    private static BASE64Encoder base64Encoder = new BASE64Encoder();
+    private static BASE64Decoder base64Decoder = new BASE64Decoder();
 
     // Same separator as for parameters in an URL
     private static final String PARAMETER_SEPARATOR = "&";
@@ -39,7 +45,7 @@ public class ParameterEncoder {
             sb.append(parameter);
             sb.append(PARAMETER_SEPARATOR);
         }
-        encodedString = new String(Base64.getEncoder().encode(sb.toString().getBytes()));
+        encodedString = base64Encoder.encode(sb.toString().getBytes());
 
         return encodedString;
     }
@@ -57,9 +63,16 @@ public class ParameterEncoder {
     public static String[] decodeParameters(String encodedString) {
         if (encodedString == null)
             return null;
-        String decodedString = new String(Base64.getDecoder()
-                .decode(encodedString));
-        return decodedString.split(PARAMETER_SEPARATOR);
 
+        String[] parameters;
+        try {
+            String decodedString = new String(base64Decoder
+                    .decodeBuffer(encodedString));
+            parameters = decodedString.split(PARAMETER_SEPARATOR);
+        } catch (IOException e) {
+            return null;
+        }
+
+        return parameters;
     }
 }

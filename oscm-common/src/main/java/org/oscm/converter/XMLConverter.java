@@ -1,16 +1,19 @@
 /*******************************************************************************
- *
- *  Copyright FUJITSU LIMITED 2017
- *
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2018
+ *                                                                              
  *  Creation Date: 07.12.2009                                                      
- *
+ *                                                                              
  *******************************************************************************/
 
 package org.oscm.converter;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,20 +45,20 @@ import org.oscm.xml.Transformers;
 
 /**
  * Class for basic conversion of Strings to Documents and vice versa.
- *
+ * 
  * @author Mike J&auml;ger
- *
+ * 
  */
 public class XMLConverter {
 
     private static final String ENCODING_UTF8 = "UTF-8";
 
     public static final String HEADER = String.format(
-        "<?xml version=\"1.0\" encoding=\"%s\"?>%n", ENCODING_UTF8);
+            "<?xml version=\"1.0\" encoding=\"%s\"?>%n", ENCODING_UTF8);
 
     /**
      * Converts a given string into its document representation.
-     *
+     * 
      * @param string
      *            The String to be converted.
      * @param nameSpaceAware
@@ -70,8 +73,8 @@ public class XMLConverter {
      *             Thrown in case the string cannot be parsed.
      */
     public static Document convertToDocument(String string,
-                                             boolean nameSpaceAware) throws ParserConfigurationException,
-        SAXException, IOException {
+            boolean nameSpaceAware) throws ParserConfigurationException,
+            SAXException, IOException {
         if (string == null) {
             return null;
         }
@@ -86,10 +89,10 @@ public class XMLConverter {
     }
 
     public static Document convertToDocument(InputStream inputStream)
-        throws ParserConfigurationException, SAXException, IOException {
+            throws ParserConfigurationException, SAXException, IOException {
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory
-            .newInstance();
+                .newInstance();
         builderFactory.setNamespaceAware(true);
         DocumentBuilder builder = builderFactory.newDocumentBuilder();
         return builder.parse(inputStream);
@@ -97,7 +100,7 @@ public class XMLConverter {
 
     /**
      * Converts a given document into its string representation.
-     *
+     * 
      * @param document
      *            The document to be converted.
      * @param includeXmlDeclaration
@@ -107,19 +110,19 @@ public class XMLConverter {
      *             Thrown in case the conversion fails.
      */
     public static String convertToString(final Node document,
-                                         final boolean includeXmlDeclaration) throws TransformerException {
+            final boolean includeXmlDeclaration) throws TransformerException {
 
         DOMSource domSource = new DOMSource(document);
         return convertToString(domSource, includeXmlDeclaration);
     }
 
     public static String convertToString(Source source,
-                                         boolean includeXmlDeclaration) throws TransformerException {
+            boolean includeXmlDeclaration) throws TransformerException {
 
         Transformer transformer = Transformers.newFormatingTransformer();
         if (!includeXmlDeclaration) {
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
-                "yes");
+                    "yes");
         }
 
         StringWriter stringWriter = new StringWriter();
@@ -136,7 +139,7 @@ public class XMLConverter {
     }
 
     /**
-     *
+     * 
      * @param input
      *            String an XML document.
      * @return the document cleaned from any carriage return ('\r') and line
@@ -150,7 +153,7 @@ public class XMLConverter {
 
     /**
      * Returns the node in the given document at the specified XPath.
-     *
+     * 
      * @param node
      *            The document to be checked.
      * @param xpathString
@@ -159,12 +162,12 @@ public class XMLConverter {
      * @throws XPathExpressionException
      */
     public static Node getNodeByXPath(Node node, String xpathString)
-        throws XPathExpressionException {
+            throws XPathExpressionException {
 
         final XPathFactory factory = XPathFactory.newInstance();
         final XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new XmlNamespaceResolver(
-            getOwningDocument(node)));
+                getOwningDocument(node)));
         final XPathExpression expr = xpath.compile(xpathString);
         return (Node) expr.evaluate(node, XPathConstants.NODE);
     }
@@ -179,7 +182,7 @@ public class XMLConverter {
 
     /**
      * Returns the node list in the given document at the specified XPath.
-     *
+     * 
      * @param node
      *            The document to be checked.
      * @param xpathString
@@ -188,18 +191,18 @@ public class XMLConverter {
      * @throws XPathExpressionException
      */
     public static NodeList getNodeListByXPath(Node node, String xpathString)
-        throws XPathExpressionException {
+            throws XPathExpressionException {
         final XPathFactory factory = XPathFactory.newInstance();
         final XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new XmlNamespaceResolver(
-            getOwningDocument(node)));
+                getOwningDocument(node)));
         final XPathExpression expr = xpath.compile(xpathString);
         return (NodeList) expr.evaluate(node, XPathConstants.NODESET);
     }
 
     /**
      * Returns the text content of the text node specified.
-     *
+     * 
      * @param doc
      *            The document containing the text node.
      * @param xpath
@@ -208,7 +211,7 @@ public class XMLConverter {
      * @throws XPathExpressionException
      */
     public static String getNodeTextContentByXPath(Node doc, String xpath)
-        throws XPathExpressionException {
+            throws XPathExpressionException {
         final Node nodeByXpath = getNodeByXPath(doc, xpath);
         if (nodeByXpath == null) {
             return null;
@@ -218,7 +221,7 @@ public class XMLConverter {
 
     /**
      * Returns the number value of an XPath evaluation.
-     *
+     * 
      * @param doc
      *            The document to be checked.
      * @param xpathString
@@ -227,7 +230,7 @@ public class XMLConverter {
      * @throws XPathExpressionException
      */
     public static Number getNumberByXPath(Document doc, String xpathString)
-        throws XPathExpressionException {
+            throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
 
@@ -239,13 +242,13 @@ public class XMLConverter {
 
     /**
      * Returns a new XML document.
-     *
+     * 
      * @return A document.
      */
     public static Document newDocument() {
         try {
             final DocumentBuilder builder = DocumentBuilderFactory
-                .newInstance().newDocumentBuilder();
+                    .newInstance().newDocumentBuilder();
             return builder.newDocument();
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
@@ -255,7 +258,7 @@ public class XMLConverter {
     /**
      * Returns a new element compatible for the elements of the document the
      * parameter belongs to.
-     *
+     * 
      * @param elementName
      *            The name of the element to be created.
      * @param parentElement
@@ -268,7 +271,7 @@ public class XMLConverter {
 
     /**
      * Returns the last child node with the provided name if existing.
-     *
+     * 
      * @param parentNode
      *            the node to find the wanted child in
      * @param nodeName
@@ -288,7 +291,7 @@ public class XMLConverter {
 
     /**
      * Reads the attribute with the given name from the given node.
-     *
+     * 
      * @param node
      *            the node to get the attribute from
      * @param attName
@@ -309,7 +312,7 @@ public class XMLConverter {
      * Reads the attribute with the given name from the given node and tries to
      * convert it to a <code>Date</code>. The value must be a <code>long</code>
      * not equal to 0 to get a <code>Date</code> object.
-     *
+     * 
      * @param node
      *            the node to get the attribute from
      * @param attName
@@ -328,7 +331,7 @@ public class XMLConverter {
     /**
      * Reads the attribute with the given name from the given node and tries to
      * convert it to a <code>long</code> value.
-     *
+     * 
      * @param node
      *            the node to get the attribute from
      * @param attName
@@ -347,7 +350,7 @@ public class XMLConverter {
     /**
      * Reads the attribute with the given name from the given node and tries to
      * convert it to a <code>BigDecimal</code> value.
-     *
+     * 
      * @param node
      *            the node to get the attribute from
      * @param attName
@@ -365,7 +368,7 @@ public class XMLConverter {
     /**
      * Reads the attribute with the given name from the given node and tries to
      * convert it to a <code>double</code> value.
-     *
+     * 
      * @param node
      *            the node to get the attribute from
      * @param attName
@@ -383,7 +386,7 @@ public class XMLConverter {
 
     /**
      * Encodes the given String in UTF-8.
-     *
+     * 
      * @param s
      * @return
      */
@@ -398,7 +401,7 @@ public class XMLConverter {
 
     /**
      * Decodes the given binary data with UTF-8.
-     *
+     * 
      * @param bytes
      * @return
      */
@@ -414,7 +417,7 @@ public class XMLConverter {
     /**
      * Combines the given list of fragments into a single XML file with the
      * given root element.
-     *
+     * 
      * @param rootname
      *            name of the root element
      * @param fragments
@@ -435,7 +438,7 @@ public class XMLConverter {
     /**
      * Combines the given list of fragments into a single XML file with the
      * given root element. The schema info is added after header
-     *
+     * 
      * @param rootname
      *            name of the root element
      * @param fragments
@@ -443,7 +446,7 @@ public class XMLConverter {
      * @return UTF-8 encoded XML file
      */
     public static byte[] combine(String rootname, List<String> fragments,
-                                 String schemaHeader) {
+            String schemaHeader) {
 
         final StringBuilder buffer = new StringBuilder();
         buffer.append(HEADER);
@@ -476,10 +479,10 @@ public class XMLConverter {
      * localName) and returns the result as a java.util.list
      */
     public static List<Element> getElementsByTagNameNS(Document document,
-                                                       String namespaceURI, String localName) {
+            String namespaceURI, String localName) {
         List<Element> result = new ArrayList<Element>();
         NodeList nodeList = document.getElementsByTagNameNS(namespaceURI,
-            localName);
+                localName);
         for (int i = 0; i < nodeList.getLength(); i++) {
             result.add((Element) nodeList.item(i));
         }
@@ -488,14 +491,14 @@ public class XMLConverter {
 
     /**
      * calculates the sum of the selected nodes
-     *
+     * 
      * @param node
      * @param expression
      * @return
      * @throws XPathExpressionException
      */
     public static Double sumup(Node node, String expression)
-        throws XPathExpressionException {
+            throws XPathExpressionException {
         final XPathFactory factory = XPathFactory.newInstance();
         final XPath xpath = factory.newXPath();
         final XPathExpression expr = xpath.compile("sum(" + expression + ')');
@@ -506,42 +509,11 @@ public class XMLConverter {
      * Count nodes which are given via xpath expression
      */
     public static Double countNodes(Node node, String nodePath)
-        throws XPathExpressionException {
+            throws XPathExpressionException {
         final XPathFactory factory = XPathFactory.newInstance();
         final XPath xpath = factory.newXPath();
         final XPathExpression expr = xpath.compile("count(" + nodePath + ')');
         return (Double) expr.evaluate(node, XPathConstants.NUMBER);
     }
 
-    public static byte[] getFileAsByteArray(Class<?> clazz, String path)
-        throws IOException {
-        URL fileURL = clazz.getClassLoader().getResource(path);
-
-        InputStream is = null;
-        byte[] bytes;
-        try {
-            File file = new File(fileURL.getFile());
-
-            is = new FileInputStream(file);
-
-            long length = file.length();
-            bytes = new byte[(int) length];
-
-            int offset = 0;
-            int numRead = 0;
-            while (offset < bytes.length
-                && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-                offset += numRead;
-            }
-            if (offset < bytes.length) {
-                throw new IOException("Could not completely read file "
-                    + file.getName());
-            }
-        } finally {
-            if (is != null)
-                is.close();
-        }
-        return bytes;
-
-    }
 }
