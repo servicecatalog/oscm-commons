@@ -117,7 +117,7 @@ public class HeadersTest {
           if (fileName
                   .toLowerCase()
                   .contains("oscm-common-unittests" + java.io.File.separator + "junit")
-              || fileName.contains("wt.testInWork.properties")) {
+              || fileName.contains("wt.testInWork.properties") || fileName.contains("pom.properties")) {
             continue;
           }
           checkFile(fileName, "Copyright FUJITSU LIMITED");
