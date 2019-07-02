@@ -5,11 +5,8 @@
 # Maven
 target/
 
-# Eclipse
-.project
-.settings
-.classpath
 
 #Unit tests
 logs/
 
+/bin/
