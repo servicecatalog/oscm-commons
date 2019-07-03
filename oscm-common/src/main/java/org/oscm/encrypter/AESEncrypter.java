@@ -8,6 +8,7 @@
 package org.oscm.encrypter;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -126,7 +127,7 @@ public class AESEncrypter {
                 cipher.init(Cipher.DECRYPT_MODE, key);
             }
 
-            return new String(cipher.doFinal(decoded));
+            return new String(cipher.doFinal(decoded), StandardCharsets.UTF_8);
         } catch (BadPaddingException exc) {
             LOG.logError(Log4jLogger.SYSTEM_LOG, exc,
                     LogMessageIdentifier.ERROR_BAD_PASSWORD);
