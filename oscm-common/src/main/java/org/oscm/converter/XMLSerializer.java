@@ -16,6 +16,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -195,10 +196,10 @@ public class XMLSerializer {
         try {
             byte[] bytes;
             if (xml.contains("<")) {
-                bytes = xml.getBytes();
+                bytes = xml.getBytes(StandardCharsets.UTF_8);
             } else {
                 String decrypted = AESEncrypter.decrypt(xml);
-                bytes = decrypted.getBytes();
+                bytes = decrypted.getBytes(StandardCharsets.UTF_8);
             }
             decoder = new XMLDecoder(new ByteArrayInputStream(bytes));
             result = decoder.readObject();
