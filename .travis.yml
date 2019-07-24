@@ -6,7 +6,7 @@ addons:
 sudo: false
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk8
 env:
   - MVN_GOAL=test
 before_install:
