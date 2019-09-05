@@ -69,13 +69,23 @@ public enum TimerType {
     INACTIVE_ON_BEHALF_USERS_REMOVAL(
             ConfigurationKey.TIMER_INTERVAL_INACTIVE_ON_BEHALF_USERS,
             ConfigurationKey.TIMER_INTERVAL_INACTIVE_ON_BEHALF_USERS_OFFSET),
+    
     /**
      * Indicates a timer that runs the check if the amount of users currently
      * registered has exceeded the amount of users allowed for the platform.No
      * offset is necessary for this timer.
      * 
      */
-    USER_NUM_CHECK(ConfigurationKey.TIMER_INTERVAL_USER_COUNT, null);
+    USER_NUM_CHECK(ConfigurationKey.TIMER_INTERVAL_USER_COUNT, null),
+    
+    /**
+     * Indicates a timer that synchronize the users with the OIDC provider
+     * .No offset is necessary for this timer.
+     */
+    SYNCHRONIZE_USERS_WITH_OIDC_PROVIDER(Period.DAY, 
+            ConfigurationKey.TIMER_INTERVAL_ORGANIZATION_OFFSET); 
+
+    
 
     private ConfigurationKey keyForIntervalTime;
     private ConfigurationKey keyForIntervalOffset;
