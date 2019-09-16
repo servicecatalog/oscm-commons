@@ -10,7 +10,7 @@ package org.oscm.validation;
 import org.junit.Test;
 
 import java.util.ArrayList;
-
+import org.oscm.internal.types.exception.IllegalArgumentException;
 public class ArgumentValidatorTest {
 
   @Test

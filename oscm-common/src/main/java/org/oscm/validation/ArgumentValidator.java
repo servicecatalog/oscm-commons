@@ -8,6 +8,7 @@
 package org.oscm.validation;
 
 import org.oscm.converter.WhiteSpaceConverter;
+import org.oscm.internal.types.exception.IllegalArgumentException;
 
 import java.util.Collection;
 
