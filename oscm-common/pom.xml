@@ -20,6 +20,10 @@
           <artifactId>oscm-extsvc-internal</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.glassfish.jersey.core</groupId>
+          <artifactId>jersey-client</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.apache.tomee</groupId>
           <artifactId>javaee-api</artifactId>
       </dependency>
@@ -34,6 +38,10 @@
       <dependency>
           <groupId>oro</groupId>
           <artifactId>oro</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
       </dependency>
       <dependency>
           <groupId>log4j</groupId>
