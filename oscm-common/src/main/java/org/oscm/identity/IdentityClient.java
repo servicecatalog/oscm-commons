@@ -1,5 +1,13 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: 18.09.2019
+ *
+ *******************************************************************************/
 package org.oscm.identity;
 
+import org.oscm.validation.ArgumentValidator;
 import org.oscm.validator.IdentityValidator;
 
 import javax.ws.rs.client.Client;
@@ -22,8 +30,8 @@ public class IdentityClient {
   public Response getUser(String accessToken, String userId) {
 
     validator.validateRequiredSettings(configuration);
-    validator.validateRequiredArgument("Access token", accessToken);
-    validator.validateRequiredArgument("User id", userId);
+    ArgumentValidator.notEmptyString("accessToken", accessToken);
+    ArgumentValidator.notEmptyString("userId", userId);
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
     String url = builder.buildGetUserUrl();
