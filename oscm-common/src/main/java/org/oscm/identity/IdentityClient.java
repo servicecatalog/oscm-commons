@@ -7,8 +7,11 @@
  *******************************************************************************/
 package org.oscm.identity;
 
+import org.oscm.identity.exception.IdentityResponseException;
+import org.oscm.identity.model.Token;
+import org.oscm.identity.model.UserInfo;
+import org.oscm.identity.validator.IdentityValidator;
 import org.oscm.validation.ArgumentValidator;
-import org.oscm.validator.IdentityValidator;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -17,25 +20,28 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class IdentityClient {
+/**
+ * Common class for accessing oscm-identity endpoints
+ */
+public abstract class IdentityClient {
 
-  private IdentityConfiguration configuration;
   private Client client = ClientBuilder.newClient();
-  private IdentityValidator validator = new IdentityValidator();
 
-  public IdentityClient(IdentityConfiguration configuration) {
+  IdentityValidator validator = new IdentityValidator();
+  IdentityConfiguration configuration;
+
+  IdentityClient(IdentityConfiguration configuration) {
     this.configuration = configuration;
   }
 
-  public Response getUser(String accessToken, String userId) {
+  UserInfo getUser(String accessToken, String userId) throws IdentityResponseException {
 
-    validator.validateRequiredSettings(configuration);
     ArgumentValidator.notEmptyString("accessToken", accessToken);
     ArgumentValidator.notEmptyString("userId", userId);
+    validator.validateRequiredSettings(configuration);
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
     String url = builder.buildGetUserUrl();
-    System.out.println(url);
 
     Response response =
         client
@@ -45,20 +51,40 @@ public class IdentityClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
 
-    return response;
+    boolean isSuccessful = IdentityClientHelper.isResponseSuccessful(response);
+
+    if (!isSuccessful) {
+      IdentityClientHelper.handleErrorResponse(response);
+    }
+
+    UserInfo userInfo = response.readEntity(UserInfo.class);
+    return userInfo;
   }
 
-  public Response getAccessToken() {
+  Token refreshToken(String refreshToken) throws IdentityResponseException {
 
+    ArgumentValidator.notEmptyString("refreshToken", refreshToken);
     validator.validateRequiredSettings(configuration);
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
-    String url = builder.buildGetAccessTokenUrl();
-    System.out.println(url);
+    String url = builder.buildRefreshTokenUrl();
+
+    Token token = new Token();
+    token.setRefreshToken(refreshToken);
 
     Response response =
-        client.target(url).request(MediaType.APPLICATION_JSON).post(Entity.json(null));
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .post(Entity.entity(token, MediaType.APPLICATION_JSON));
 
-    return response;
+    boolean isSuccessful = IdentityClientHelper.isResponseSuccessful(response);
+
+    if (!isSuccessful) {
+      IdentityClientHelper.handleErrorResponse(response);
+    }
+
+    Token refreshedToken = response.readEntity(Token.class);
+    return refreshedToken;
   }
 }

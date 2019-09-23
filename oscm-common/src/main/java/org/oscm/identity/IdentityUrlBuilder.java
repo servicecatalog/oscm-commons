@@ -14,7 +14,7 @@ public class IdentityUrlBuilder {
     this.tenantId = tenantId;
   }
 
-  private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
+  private static String HOSTNAME = "http://localhost:9090/oscm-identity";
   private static String RESOURCE_TENANTS = "tenants";
   private static String RESOURCE_USERS = "users";
   private static String RESOURCE_GROUPS = "groups";
@@ -43,7 +43,7 @@ public class IdentityUrlBuilder {
   }
 
   /**
-   * Build url for retrieving access token (based on client credentials flow) from oscm-identity
+   * Builds url for retrieving access token (based on client credentials flow) from oscm-identity
    *
    * @return url
    */
@@ -57,6 +57,28 @@ public class IdentityUrlBuilder {
             .append(tenantId)
             .append("/")
             .append(RESOURCE_TOKEN)
+            .toString();
+
+    return url;
+  }
+
+  /**
+   * Builds url for refreshing access token through oscm-identity
+   *
+   * @return url
+   */
+  public String buildRefreshTokenUrl() {
+
+    String url =
+        new StringBuilder(HOSTNAME)
+            .append("/")
+            .append(RESOURCE_TENANTS)
+            .append("/")
+            .append(tenantId)
+            .append("/")
+            .append(RESOURCE_TOKEN)
+            .append("/")
+            .append("refresh")
             .toString();
 
     return url;
