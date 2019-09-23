@@ -14,7 +14,7 @@ public class IdentityUrlBuilder {
     this.tenantId = tenantId;
   }
 
-  private static String HOSTNAME = "http://localhost:9090/oscm-identity";
+  private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
   private static String RESOURCE_TENANTS = "tenants";
   private static String RESOURCE_USERS = "users";
   private static String RESOURCE_GROUPS = "groups";
