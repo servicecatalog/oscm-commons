@@ -14,7 +14,7 @@ public class IdentityUrlBuilder {
     this.tenantId = tenantId;
   }
 
-  private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
+  private static String HOSTNAME = "http://localhost:9090/oscm-identity";
   private static String RESOURCE_TENANTS = "tenants";
   private static String RESOURCE_USERS = "users";
   private static String RESOURCE_GROUPS = "groups";
@@ -79,6 +79,26 @@ public class IdentityUrlBuilder {
             .append(RESOURCE_TOKEN)
             .append("/")
             .append("refresh")
+            .toString();
+
+    return url;
+  }
+
+  /**
+   * Builds url for creating new group through oscm-identity
+   *
+   * @return url
+   */
+  public String buildCreateGroupUrl() {
+
+    String url =
+        new StringBuilder(HOSTNAME)
+            .append("/")
+            .append(RESOURCE_TENANTS)
+            .append("/")
+            .append(tenantId)
+            .append("/")
+            .append(RESOURCE_GROUPS)
             .toString();
 
     return url;

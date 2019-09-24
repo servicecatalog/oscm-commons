@@ -29,22 +29,24 @@ public class IdentityClientHelper {
 
   /**
    * Provide client with {@link IdentityResponseException} based on http response containing error
-   * information
+   * information in case response is not successful
    *
    * @param response http response
    * @throws IdentityResponseException
    */
-  public static void handleErrorResponse(Response response) throws IdentityResponseException {
+  public static void handlePossibleErrorResponse(Response response) throws IdentityResponseException {
 
-    ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
+    if (!isResponseSuccessful(response)) {
+      ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
 
-    IdentityResponseException clientException =
-        new IdentityResponseException(errorInfo.getErrorDescription());
+      IdentityResponseException clientException =
+          new IdentityResponseException(errorInfo.getErrorDescription());
 
-    clientException.setError(errorInfo.getError());
-    clientException.setStatus(response.getStatus());
+      clientException.setError(errorInfo.getError());
+      clientException.setStatus(response.getStatus());
 
-    throw clientException;
+      throw clientException;
+    }
   }
 
   /**

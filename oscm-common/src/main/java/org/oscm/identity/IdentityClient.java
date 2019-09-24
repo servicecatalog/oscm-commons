@@ -8,6 +8,7 @@
 package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityResponseException;
+import org.oscm.identity.model.GroupInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.UserInfo;
 import org.oscm.identity.validator.IdentityValidator;
@@ -51,11 +52,7 @@ public abstract class IdentityClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
 
-    boolean isSuccessful = IdentityClientHelper.isResponseSuccessful(response);
-
-    if (!isSuccessful) {
-      IdentityClientHelper.handleErrorResponse(response);
-    }
+    IdentityClientHelper.handlePossibleErrorResponse(response);
 
     UserInfo userInfo = response.readEntity(UserInfo.class);
     return userInfo;
@@ -78,13 +75,55 @@ public abstract class IdentityClient {
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(token, MediaType.APPLICATION_JSON));
 
-    boolean isSuccessful = IdentityClientHelper.isResponseSuccessful(response);
-
-    if (!isSuccessful) {
-      IdentityClientHelper.handleErrorResponse(response);
-    }
+    IdentityClientHelper.handlePossibleErrorResponse(response);
 
     Token refreshedToken = response.readEntity(Token.class);
     return refreshedToken;
+  }
+
+  Token getAccessToken() throws IdentityResponseException {
+
+    validator.validateRequiredSettings(configuration);
+
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    String url = builder.buildGetAccessTokenUrl();
+
+    Response response =
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .post(Entity.entity("", MediaType.APPLICATION_JSON));
+
+    IdentityClientHelper.handlePossibleErrorResponse(response);
+
+    Token token = response.readEntity(Token.class);
+    return token;
+  }
+
+  GroupInfo createGroup(String accessToken, String groupName, String groupDescription)
+      throws IdentityResponseException {
+
+    ArgumentValidator.notEmptyString("accessToken", accessToken);
+    ArgumentValidator.notEmptyString("groupName", groupName);
+    validator.validateRequiredSettings(configuration);
+
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    String url = builder.buildCreateGroupUrl();
+
+    GroupInfo groupInfo = new GroupInfo();
+    groupInfo.setName(groupName);
+    groupInfo.setDescription(groupDescription);
+
+    Response response =
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .post(Entity.entity(groupInfo, MediaType.APPLICATION_JSON));
+
+    IdentityClientHelper.handlePossibleErrorResponse(response);
+
+    GroupInfo group = response.readEntity(GroupInfo.class);
+    return group;
   }
 }
