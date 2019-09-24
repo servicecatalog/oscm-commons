@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.oscm.identity;
 
-import org.oscm.identity.exception.IdentityResponseException;
+import org.oscm.identity.exception.IdentityClientException;
 import org.oscm.identity.model.ErrorInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.TokenType;
@@ -28,19 +28,19 @@ public class IdentityClientHelper {
   }
 
   /**
-   * Provide client with {@link IdentityResponseException} based on http response containing error
+   * Provide client with {@link IdentityClientException} based on http response containing error
    * information in case response is not successful
    *
    * @param response http response
-   * @throws IdentityResponseException
+   * @throws IdentityClientException
    */
-  public static void handlePossibleErrorResponse(Response response) throws IdentityResponseException {
+  public static void handlePossibleErrorResponse(Response response) throws IdentityClientException {
 
     if (!isResponseSuccessful(response)) {
       ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
 
-      IdentityResponseException clientException =
-          new IdentityResponseException(errorInfo.getErrorDescription());
+      IdentityClientException clientException =
+          new IdentityClientException(errorInfo.getErrorDescription());
 
       clientException.setError(errorInfo.getError());
       clientException.setStatus(response.getStatus());

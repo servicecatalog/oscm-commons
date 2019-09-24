@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.oscm.identity;
 
-import org.oscm.identity.exception.IdentityResponseException;
+import org.oscm.identity.exception.IdentityClientException;
 import org.oscm.identity.model.GroupInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.UserInfo;
@@ -35,7 +35,7 @@ public abstract class IdentityClient {
     this.configuration = configuration;
   }
 
-  UserInfo getUser(String accessToken, String userId) throws IdentityResponseException {
+  UserInfo getUser(String accessToken, String userId) throws IdentityClientException {
 
     ArgumentValidator.notEmptyString("accessToken", accessToken);
     ArgumentValidator.notEmptyString("userId", userId);
@@ -58,7 +58,7 @@ public abstract class IdentityClient {
     return userInfo;
   }
 
-  Token refreshToken(String refreshToken) throws IdentityResponseException {
+  Token refreshToken(String refreshToken) throws IdentityClientException {
 
     ArgumentValidator.notEmptyString("refreshToken", refreshToken);
     validator.validateRequiredSettings(configuration);
@@ -81,7 +81,7 @@ public abstract class IdentityClient {
     return refreshedToken;
   }
 
-  Token getAccessToken() throws IdentityResponseException {
+  Token getAccessToken() throws IdentityClientException {
 
     validator.validateRequiredSettings(configuration);
 
@@ -101,7 +101,7 @@ public abstract class IdentityClient {
   }
 
   GroupInfo createGroup(String accessToken, String groupName, String groupDescription)
-      throws IdentityResponseException {
+      throws IdentityClientException {
 
     ArgumentValidator.notEmptyString("accessToken", accessToken);
     ArgumentValidator.notEmptyString("groupName", groupName);

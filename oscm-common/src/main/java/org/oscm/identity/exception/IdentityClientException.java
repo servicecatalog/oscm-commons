@@ -11,12 +11,12 @@ package org.oscm.identity.exception;
  * Checked exception thrown in case http response requested by oscm-identity client is not
  * successful. contains additional information with http response status and error description
  */
-public class IdentityResponseException extends Exception {
+public class IdentityClientException extends Exception {
 
   private int status;
   private String error;
 
-  public IdentityResponseException(String message) {
+  public IdentityClientException(String message) {
     super(message);
   }
 

@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.oscm.identity;
 
-import org.oscm.identity.exception.IdentityResponseException;
+import org.oscm.identity.exception.IdentityClientException;
 import org.oscm.identity.model.Token;
 
 /**
@@ -21,7 +21,7 @@ public class ApiIdentityClient extends IdentityClient {
         super(configuration);
     }
 
-    public Token getAccessToken() throws IdentityResponseException {
+    public Token getAccessToken() throws IdentityClientException {
         Token accessToken = super.getAccessToken();
         return accessToken;
     }
