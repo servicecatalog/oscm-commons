@@ -12,11 +12,13 @@ import org.oscm.identity.model.GroupInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.UserInfo;
 
-import java.util.Optional;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Client for accessing oscm-identity using authentication flow related tokens (stored in session
- * context). In case access token used is expired, it tries to refresh it with refresh endpoint. All
+ * context). In case access token used is expired, client tries to refresh and execute the request again. All
  * necessary settings are stored in {@link IdentityConfiguration} object.
  */
 public class WebIdentityClient extends IdentityClient {
@@ -26,74 +28,71 @@ public class WebIdentityClient extends IdentityClient {
     super(configuration);
   }
 
-  /**
-   * Retrieves user information based on given user id. If response is not successful (status is
-   * different than 2xx) it throws checked exception {@link IdentityClientException}
-   *
-   * @param userId id of user
-   * @return user information
-   * @throws IdentityClientException
-   */
+  @Override
+  void validate(IdentityConfiguration configuration) {
+    validator.validateRequiredSettings(configuration);
+    validator.validateWebContext(configuration);
+  }
+
+  @Override
+  public String getAccessToken() {
+    validator.validateWebContext(configuration);
+    return IdentityClientHelper.getAccessToken(configuration);
+  }
+
+  @Override
   public UserInfo getUser(String userId) throws IdentityClientException {
 
-    validator.validateWebContext(configuration);
-    String accessToken = IdentityClientHelper.getAccessToken(configuration);
-    UserInfo userInfo;
-
     try {
-      userInfo = getUser(accessToken, userId);
-    } catch (IdentityClientException excp) {
+      return super.getUser(userId);
+    } catch (IdentityClientException exception) {
 
-      Optional<String> refreshedToken = refreshAccessTokenIfNecessary(excp);
-      if (refreshedToken.isPresent()) {
-        userInfo = getUser(refreshedToken.get(), userId);
+      boolean tokenRefreshed = refreshAccessToken(exception);
+      if (tokenRefreshed) {
+        return super.getUser(userId);
       } else {
-        throw excp;
+        throw exception;
       }
     }
-    return userInfo;
   }
 
-  /**
-   * Creates user group in related OIDC provider. If response is not successful (status is different
-   * than 2xx) it throws checked exception {@link IdentityClientException}
-   *
-   * @param groupName name of the group
-   * @param groupDescription description of the group
-   * @return group information
-   * @throws IdentityClientException
-   */
-  public GroupInfo createGroup(String groupName, String groupDescription)
-      throws IdentityClientException {
-
-    validator.validateWebContext(configuration);
-    String accessToken = IdentityClientHelper.getAccessToken(configuration);
-    GroupInfo groupInfo;
+  @Override
+  public GroupInfo createGroup(String groupName, String groupDescription) throws IdentityClientException {
 
     try {
-      groupInfo = createGroup(accessToken, groupName, groupDescription);
-    } catch (IdentityClientException excp) {
+      return super.createGroup(groupName, groupDescription);
+    } catch (IdentityClientException exception) {
 
-      Optional<String> refreshedToken = refreshAccessTokenIfNecessary(excp);
-      if (refreshedToken.isPresent()) {
-        groupInfo = createGroup(refreshedToken.get(), groupName, groupDescription);
+      boolean tokenRefreshed = refreshAccessToken(exception);
+      if (tokenRefreshed) {
+        return super.createGroup(groupName, groupDescription);
       } else {
-        throw excp;
+        throw exception;
       }
     }
-    return groupInfo;
   }
 
-  private Optional<String> refreshAccessTokenIfNecessary(IdentityClientException error)
-      throws IdentityClientException {
+  private boolean refreshAccessToken(IdentityClientException exception) throws IdentityClientException {
 
-    if (error.getMessage().equals("Access token has expired.")) {
+    if (exception.getMessage().equals("Access token has expired.")) {
 
       String refreshToken = IdentityClientHelper.getRefreshToken(configuration);
-      Token response = refreshToken(refreshToken);
-      IdentityClientHelper.updateTokens(configuration, response);
-      return Optional.of(response.getAccessToken());
+      IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+      String url = builder.buildRefreshTokenUrl();
+
+      Token token = new Token();
+      token.setRefreshToken(refreshToken);
+
+      Response response =
+          client
+              .target(url)
+              .request(MediaType.APPLICATION_JSON)
+              .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+
+      Token refreshedTokens = IdentityClientHelper.handleResponse(response, Token.class, url);
+      IdentityClientHelper.updateTokens(configuration, refreshedTokens);
+      return true;
     }
-    return Optional.empty();
+    return false;
   }
 }

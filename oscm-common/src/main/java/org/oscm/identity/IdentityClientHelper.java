@@ -33,21 +33,34 @@ public class IdentityClientHelper {
   }
 
   /**
-   * Provide client with {@link IdentityClientException} based on http response containing error
-   * information in case response is not successful
+   * Handles http response. In case it is successful, it provides client with response body objects,
+   * it provides client with {@link IdentityClientException} otherwise
    *
+   * @param <T>
    * @param response http response
+   * @param type type of requested response body
+   * @param url
+   * @return response body
    * @throws IdentityClientException
    */
-  public static void handlePossibleErrorResponse(Response response) throws IdentityClientException {
+  public static <T> T handleResponse(Response response, Class<T> type, String url)
+      throws IdentityClientException {
 
-    if (!isResponseSuccessful(response)) {
+    int status = response.getStatus();
+    LOGGER.logInfo(
+        Log4jLogger.SYSTEM_LOG,
+        LogMessageIdentifier.INFO_IDENTITY_CLIENT_RESPONSE,
+        url,
+        Integer.toString(status));
+
+    if (isResponseSuccessful(response)) {
+      return response.readEntity(type);
+    } else {
       ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
       String error = errorInfo.getError();
       String errorDescription = errorInfo.getErrorDescription();
 
-      IdentityClientException clientException =
-          new IdentityClientException(errorDescription);
+      IdentityClientException clientException = new IdentityClientException(errorDescription);
 
       clientException.setError(error);
       clientException.setStatus(response.getStatus());
