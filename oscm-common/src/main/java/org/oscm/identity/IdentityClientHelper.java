@@ -11,11 +11,16 @@ import org.oscm.identity.exception.IdentityClientException;
 import org.oscm.identity.model.ErrorInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.TokenType;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 import javax.ws.rs.core.Response;
 
 /** Utility class for handling issues related to oscm-identity client */
 public class IdentityClientHelper {
+
+  private static final Log4jLogger LOGGER = LoggerFactory.getLogger(IdentityClientHelper.class);
 
   /**
    * Checks if http response status is successful
@@ -38,13 +43,16 @@ public class IdentityClientHelper {
 
     if (!isResponseSuccessful(response)) {
       ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
+      String error = errorInfo.getError();
+      String errorDescription = errorInfo.getErrorDescription();
 
       IdentityClientException clientException =
-          new IdentityClientException(errorInfo.getErrorDescription());
+          new IdentityClientException(errorDescription);
 
-      clientException.setError(errorInfo.getError());
+      clientException.setError(error);
       clientException.setStatus(response.getStatus());
 
+      LOGGER.logError(LogMessageIdentifier.ERROR_IDENTITY_CLIENT_DETAILS, error, errorDescription);
       throw clientException;
     }
   }

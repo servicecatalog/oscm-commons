@@ -12,6 +12,9 @@ import org.oscm.identity.model.GroupInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.UserInfo;
 import org.oscm.identity.validator.IdentityValidator;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.validation.ArgumentValidator;
 
 import javax.ws.rs.client.Client;
@@ -26,6 +29,7 @@ import javax.ws.rs.core.Response;
  */
 public abstract class IdentityClient {
 
+  private static final Log4jLogger LOGGER = LoggerFactory.getLogger(IdentityClient.class);
   private Client client = ClientBuilder.newClient();
 
   IdentityValidator validator = new IdentityValidator();
@@ -52,6 +56,7 @@ public abstract class IdentityClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
 
+    logResponseInfo(url, response);
     IdentityClientHelper.handlePossibleErrorResponse(response);
 
     UserInfo userInfo = response.readEntity(UserInfo.class);
@@ -75,6 +80,7 @@ public abstract class IdentityClient {
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(token, MediaType.APPLICATION_JSON));
 
+    logResponseInfo(url, response);
     IdentityClientHelper.handlePossibleErrorResponse(response);
 
     Token refreshedToken = response.readEntity(Token.class);
@@ -94,6 +100,7 @@ public abstract class IdentityClient {
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity("", MediaType.APPLICATION_JSON));
 
+    logResponseInfo(url, response);
     IdentityClientHelper.handlePossibleErrorResponse(response);
 
     Token token = response.readEntity(Token.class);
@@ -121,9 +128,20 @@ public abstract class IdentityClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .post(Entity.entity(groupInfo, MediaType.APPLICATION_JSON));
 
+    logResponseInfo(url, response);
     IdentityClientHelper.handlePossibleErrorResponse(response);
 
     GroupInfo group = response.readEntity(GroupInfo.class);
     return group;
+  }
+
+  private void logResponseInfo(String requestedUrl, Response response) {
+
+    int status = response.getStatus();
+    LOGGER.logInfo(
+        Log4jLogger.SYSTEM_LOG,
+        LogMessageIdentifier.INFO_IDENTITY_CLIENT_RESPONSE,
+        requestedUrl,
+        Integer.toString(status));
   }
 }

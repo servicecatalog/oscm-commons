@@ -12,12 +12,15 @@ import org.oscm.identity.model.GroupInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.UserInfo;
 
+import java.util.Optional;
+
 /**
  * Client for accessing oscm-identity using authentication flow related tokens (stored in session
  * context). In case access token used is expired, it tries to refresh it with refresh endpoint. All
  * necessary settings are stored in {@link IdentityConfiguration} object.
  */
 public class WebIdentityClient extends IdentityClient {
+
 
   public WebIdentityClient(IdentityConfiguration configuration) {
     super(configuration);
@@ -41,11 +44,9 @@ public class WebIdentityClient extends IdentityClient {
       userInfo = getUser(accessToken, userId);
     } catch (IdentityClientException excp) {
 
-      if (excp.getMessage().equals("Access token has expired.")) {
-        String refreshToken = IdentityClientHelper.getRefreshToken(configuration);
-        Token response = refreshToken(refreshToken);
-        IdentityClientHelper.updateTokens(configuration, response);
-        userInfo = getUser(response.getAccessToken(), userId);
+      Optional<String> refreshedToken = refreshAccessTokenIfNecessary(excp);
+      if (refreshedToken.isPresent()) {
+        userInfo = getUser(refreshedToken.get(), userId);
       } else {
         throw excp;
       }
@@ -73,15 +74,26 @@ public class WebIdentityClient extends IdentityClient {
       groupInfo = createGroup(accessToken, groupName, groupDescription);
     } catch (IdentityClientException excp) {
 
-      if (excp.getMessage().equals("Access token has expired.")) {
-        String refreshToken = IdentityClientHelper.getRefreshToken(configuration);
-        Token response = refreshToken(refreshToken);
-        IdentityClientHelper.updateTokens(configuration, response);
-        groupInfo = createGroup(response.getAccessToken(), groupName, groupDescription);
+      Optional<String> refreshedToken = refreshAccessTokenIfNecessary(excp);
+      if (refreshedToken.isPresent()) {
+        groupInfo = createGroup(refreshedToken.get(), groupName, groupDescription);
       } else {
         throw excp;
       }
     }
     return groupInfo;
+  }
+
+  private Optional<String> refreshAccessTokenIfNecessary(IdentityClientException error)
+      throws IdentityClientException {
+
+    if (error.getMessage().equals("Access token has expired.")) {
+
+      String refreshToken = IdentityClientHelper.getRefreshToken(configuration);
+      Token response = refreshToken(refreshToken);
+      IdentityClientHelper.updateTokens(configuration, response);
+      return Optional.of(response.getAccessToken());
+    }
+    return Optional.empty();
   }
 }
