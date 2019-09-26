@@ -9,6 +9,8 @@ package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityClientException;
 import org.oscm.identity.model.GroupInfo;
+import org.oscm.identity.model.TokenDetails;
+import org.oscm.identity.model.TokenType;
 import org.oscm.identity.model.UserInfo;
 import org.oscm.identity.validator.IdentityValidator;
 import org.oscm.validation.ArgumentValidator;
@@ -108,5 +110,34 @@ public abstract class IdentityClient {
 
     GroupInfo groupInfoResponse = IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
     return groupInfoResponse;
+  }
+
+  /**
+   * Validates the given token. If validation fails it provides client with {@link
+   * IdentityClientException}
+   *
+   * @param token
+   * @param tokenType type of the token
+   * @throws IdentityClientException
+   */
+  public void validateToken(String token, TokenType tokenType) throws IdentityClientException {
+
+    validator.validateRequiredSettings(configuration);
+    ArgumentValidator.notEmptyString("token", token);
+    ArgumentValidator.notNull("tokenType", tokenType);
+
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    String url = builder.buildValidateTokenUrl();
+    TokenDetails tokenDetails = new TokenDetails();
+    tokenDetails.setToken(token);
+    tokenDetails.setTokenType(tokenType.name());
+
+    Response response =
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .post(Entity.entity(tokenDetails, MediaType.APPLICATION_JSON));
+
+    IdentityClientHelper.handleResponse(response, String.class, url);
   }
 }

@@ -14,7 +14,7 @@ public class IdentityUrlBuilder {
     this.tenantId = tenantId;
   }
 
-  private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
+  private static String HOSTNAME = "http://localhost:9090/oscm-identity";
   private static String RESOURCE_TENANTS = "tenants";
   private static String RESOURCE_USERS = "users";
   private static String RESOURCE_GROUPS = "groups";
@@ -85,6 +85,18 @@ public class IdentityUrlBuilder {
   }
 
   /**
+   * Builds url for validating tokens through oscm-identity
+   *
+   * @return url
+   */
+  public String buildValidateTokenUrl() {
+
+    String url = new StringBuilder(buildTokenUrl()).append("/").append("verify").toString();
+
+    return url;
+  }
+
+  /**
    * Builds url for creating new group through oscm-identity
    *
    * @return url
@@ -101,6 +113,25 @@ public class IdentityUrlBuilder {
             .append(RESOURCE_GROUPS)
             .toString();
 
+    return url;
+  }
+
+  /**
+   * Builds base url for oscm-identity token operations
+   *
+   * @return url
+   */
+  private String buildTokenUrl() {
+
+    String url =
+        new StringBuilder(HOSTNAME)
+            .append("/")
+            .append(RESOURCE_TENANTS)
+            .append("/")
+            .append(tenantId)
+            .append("/")
+            .append(RESOURCE_TOKEN)
+            .toString();
     return url;
   }
 }
