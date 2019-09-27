@@ -8,6 +8,7 @@
 package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityClientException;
+import org.oscm.identity.model.AccessType;
 import org.oscm.identity.model.GroupInfo;
 import org.oscm.identity.model.Token;
 import org.oscm.identity.model.UserInfo;
@@ -35,7 +36,7 @@ public class WebIdentityClient extends IdentityClient {
   }
 
   @Override
-  public String getAccessToken() {
+  public String getAccessToken(AccessType accessType) {
     validator.validateWebContext(configuration);
     return IdentityClientHelper.getAccessToken(configuration);
   }

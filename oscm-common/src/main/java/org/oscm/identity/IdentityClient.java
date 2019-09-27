@@ -8,10 +8,7 @@
 package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityClientException;
-import org.oscm.identity.model.GroupInfo;
-import org.oscm.identity.model.TokenDetails;
-import org.oscm.identity.model.TokenType;
-import org.oscm.identity.model.UserInfo;
+import org.oscm.identity.model.*;
 import org.oscm.identity.validator.IdentityValidator;
 import org.oscm.validation.ArgumentValidator;
 
@@ -44,10 +41,11 @@ public abstract class IdentityClient {
   /**
    * Retrieves access token used by specific client for requesting endpoints
    *
+   * @param accessType type of access for requested access token
    * @return access token
    * @throws IdentityClientException
    */
-  public abstract String getAccessToken() throws IdentityClientException;
+  public abstract String getAccessToken(AccessType accessType) throws IdentityClientException;
 
   /**
    * Retrieves user information based on given user's id. If response is not successful (status is
@@ -64,7 +62,7 @@ public abstract class IdentityClient {
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
     String url = builder.buildGetUserUrl();
-    String accessToken = getAccessToken();
+    String accessToken = getAccessToken(AccessType.IDP);
 
     Response response =
         client
@@ -95,7 +93,7 @@ public abstract class IdentityClient {
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
     String url = builder.buildCreateGroupUrl();
-    String accessToken = getAccessToken();
+    String accessToken = getAccessToken(AccessType.IDP);
 
     GroupInfo groupInfo = new GroupInfo();
     groupInfo.setName(groupName);

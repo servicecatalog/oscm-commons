@@ -8,7 +8,8 @@
 package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityClientException;
-import org.oscm.identity.model.Token;
+import org.oscm.identity.model.AccessToken;
+import org.oscm.identity.model.AccessType;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -31,20 +32,23 @@ public class ApiIdentityClient extends IdentityClient {
   }
 
   @Override
-  public String getAccessToken() throws IdentityClientException {
+  public String getAccessToken(AccessType accessType) throws IdentityClientException {
 
     validate(configuration);
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
     String url = builder.buildGetAccessTokenUrl();
 
+    AccessToken accessToken = new AccessToken();
+    accessToken.setAccessType(accessType);
+
     Response response =
         client
             .target(url)
             .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity("", MediaType.APPLICATION_JSON));
+            .post(Entity.entity(accessToken, MediaType.APPLICATION_JSON));
 
-    Token token = IdentityClientHelper.handleResponse(response, Token.class, url);
+    AccessToken token = IdentityClientHelper.handleResponse(response, AccessToken.class, url);
 
     return token.getAccessToken();
   }
