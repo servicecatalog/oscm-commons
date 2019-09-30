@@ -18,6 +18,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 /** Abstract client for accessing oscm-identity endpoints */
 public abstract class IdentityClient {
@@ -85,8 +86,7 @@ public abstract class IdentityClient {
    * @return group information
    * @throws IdentityClientException
    */
-  public GroupInfo createGroup(String groupName, String groupDescription)
-      throws IdentityClientException {
+  public GroupInfo createGroup(String groupName, String groupDescription) throws IdentityClientException {
 
     ArgumentValidator.notEmptyString("groupName", groupName);
     validate(configuration);
@@ -108,6 +108,67 @@ public abstract class IdentityClient {
 
     GroupInfo groupInfoResponse = IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
     return groupInfoResponse;
+  }
+
+  /**
+   * Retrieves members of given group in related OIDC provider. If response is not successful
+   * (status is different than 2xx) it throws checked exception {@link IdentityClientException}
+   *
+   * @param groupId id of the group
+   * @return users
+   * @throws IdentityClientException
+   */
+  public Set<UserInfo> getGroupMembers(String groupId) throws IdentityClientException {
+
+    validate(configuration);
+    ArgumentValidator.notEmptyString("groupId", groupId);
+
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    String url = builder.buildGroupMembersUrl(groupId);
+
+    String accessToken = getAccessToken(AccessType.IDP);
+
+    Response response =
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .get();
+
+    Set<UserInfo> members = IdentityClientHelper.handleResponse(response, Set.class, url);
+    return members;
+  }
+
+  /**
+   * Adds given user to group with given id in related OIDC provider. If response is not successful
+   * (status is different than 2xx) it throws checked exception {@link IdentityClientException}
+   *
+   * @param userId id of user
+   * @param groupId if of group
+   * @throws IdentityClientException
+   */
+  public void addGroupMember(String userId, String groupId) throws IdentityClientException {
+
+    validate(configuration);
+    ArgumentValidator.notEmptyString("userId", userId);
+    ArgumentValidator.notEmptyString("groupId", groupId);
+
+    String accessToken = getAccessToken(AccessType.IDP);
+
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    String url = builder.buildGroupMembersUrl(groupId);
+
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId(userId);
+
+    Response response =
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .post(Entity.entity(userInfo, MediaType.APPLICATION_JSON));
+
+    IdentityClientHelper.handleResponse(response, String.class, url);
   }
 
   /**

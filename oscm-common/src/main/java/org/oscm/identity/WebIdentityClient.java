@@ -16,6 +16,7 @@ import org.oscm.identity.model.UserInfo;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 /**
  * Client for accessing oscm-identity using authentication flow related tokens (stored in session
@@ -67,6 +68,38 @@ public class WebIdentityClient extends IdentityClient {
       boolean tokenRefreshed = refreshAccessToken(exception);
       if (tokenRefreshed) {
         return super.createGroup(groupName, groupDescription);
+      } else {
+        throw exception;
+      }
+    }
+  }
+
+  @Override
+  public Set<UserInfo> getGroupMembers(String groupId) throws IdentityClientException {
+
+    try {
+      return super.getGroupMembers(groupId);
+    } catch (IdentityClientException exception) {
+
+      boolean tokenRefreshed = refreshAccessToken(exception);
+      if (tokenRefreshed) {
+        return super.getGroupMembers(groupId);
+      } else {
+        throw exception;
+      }
+    }
+  }
+
+  @Override
+  public void addGroupMember(String userId, String groupId) throws IdentityClientException {
+
+    try {
+      super.addGroupMember(userId, groupId);
+    } catch (IdentityClientException exception) {
+
+      boolean tokenRefreshed = refreshAccessToken(exception);
+      if (tokenRefreshed) {
+        super.addGroupMember(userId, groupId);
       } else {
         throw exception;
       }
