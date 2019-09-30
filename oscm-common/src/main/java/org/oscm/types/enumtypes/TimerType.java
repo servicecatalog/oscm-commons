@@ -83,7 +83,7 @@ public enum TimerType {
      * .No offset is necessary for this timer.
      */
     SYNCHRONIZE_USERS_WITH_OIDC_PROVIDER(Period.DAY, 
-            ConfigurationKey.TIMER_INTERVAL_ORGANIZATION_OFFSET); 
+            ConfigurationKey.TIMER_INTERVAL_SYNCHRONIZE_USERS_OFFSET); //TIMER_INTERVAL_SYNCHRONIZE_USERS_OFFSET Period.DAY,
 
     
 
