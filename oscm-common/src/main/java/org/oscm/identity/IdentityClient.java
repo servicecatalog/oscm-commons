@@ -199,4 +199,32 @@ public abstract class IdentityClient {
 
     IdentityClientHelper.handleResponse(response, String.class, url);
   }
+  
+  /**
+   * Retrieves members of given group in related OIDC provider. If response is not successful
+   * (status is different than 2xx) it throws checked exception {@link IdentityClientException}
+   *
+   * @param groupId id of the group
+   * @return users
+   * @throws IdentityClientException
+   */
+  public GroupInfo[] getGroups() throws IdentityClientException {
+
+    validate(configuration);
+
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    
+    String url = builder.buildGroupsUrl();
+    String accessToken = getAccessToken(AccessType.IDP);
+
+    Response response =
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .get();
+
+    GroupInfo[] groups = IdentityClientHelper.handleResponse(response, GroupInfo[].class, url);
+    return groups;
+  }
 }
