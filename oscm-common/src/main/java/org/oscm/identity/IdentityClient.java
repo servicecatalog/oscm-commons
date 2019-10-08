@@ -204,8 +204,7 @@ public abstract class IdentityClient {
    * Retrieves members of given group in related OIDC provider. If response is not successful
    * (status is different than 2xx) it throws checked exception {@link IdentityClientException}
    *
-   * @param groupId id of the group
-   * @return users
+   * @return groups
    * @throws IdentityClientException
    */
   public GroupInfo[] getGroups() throws IdentityClientException {
