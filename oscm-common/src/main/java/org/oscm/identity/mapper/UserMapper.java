@@ -1,4 +1,11 @@
-package org.oscm.modelMapper;
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: 23.09.2019
+ *
+ *******************************************************************************/
+package org.oscm.identity.mapper;
 
 import org.oscm.identity.model.UserInfo;
 import org.oscm.internal.types.enumtypes.Salutation;
