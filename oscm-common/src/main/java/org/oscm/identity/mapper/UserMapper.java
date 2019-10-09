@@ -62,9 +62,9 @@ public class UserMapper {
         if (userInfo.getClass() != null) {
             for (T user : userInfo) {
                 try {
-                    Method sumInstanceMethod = UserMapper.class
+                    Method from = UserMapper.class
                             .getMethod("from", user.getClass());
-                    userInfos.add(sumInstanceMethod.invoke(null, user));
+                    userInfos.add(from.invoke(null, user));
 
                 } catch (Exception e) {
                     logger.logError(
