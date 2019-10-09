@@ -7,11 +7,22 @@
  *******************************************************************************/
 package org.oscm.identity.mapper;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.oscm.identity.model.UserInfo;
 import org.oscm.internal.types.enumtypes.Salutation;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 public class UserMapper {
+
+    private static final Log4jLogger logger = LoggerFactory
+            .getLogger(UserMapper.class);
 
     public static UserInfo from(VOUserDetails userDetails) {
 
@@ -46,8 +57,27 @@ public class UserMapper {
         return userDetails;
     }
 
+    public static <T> List<?> fromSet(Set<T> userInfo) {
+        List<Object> userInfos = new ArrayList();
+        if (userInfo.getClass() != null) {
+            for (T user : userInfo) {
+                try {
+                    Method sumInstanceMethod = UserMapper.class
+                            .getMethod("from", user.getClass());
+                    userInfos.add(sumInstanceMethod.invoke(null, user));
+
+                } catch (Exception e) {
+                    logger.logError(
+                            LogMessageIdentifier.ERROR_OBJECT_ENCODING_FAILED,
+                            "An error occured while mapping userInfo and userDetails");
+                }
+            }
+        }
+        return userInfos;
+    }
+
     protected static Salutation mapGenderToSalutation(String gender) {
-        
+
         if (gender == null) {
             return Salutation.MS;
         }
