@@ -18,6 +18,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /** Abstract client for accessing oscm-identity endpoints */
@@ -135,8 +138,9 @@ public abstract class IdentityClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
 
-    Set<UserInfo> members = IdentityClientHelper.handleResponse(response, Set.class, url);
-    return members;
+    UserInfo[] members = IdentityClientHelper.handleResponse(response, UserInfo[].class, url);
+    Set<UserInfo>  memberSet = new HashSet<>(Arrays.asList(members));
+    return memberSet;
   }
 
   /**
@@ -207,7 +211,7 @@ public abstract class IdentityClient {
    * @return groups
    * @throws IdentityClientException
    */
-  public GroupInfo[] getGroups() throws IdentityClientException {
+  public Set<GroupInfo> getGroups() throws IdentityClientException {
 
     validate(configuration);
 
@@ -224,6 +228,7 @@ public abstract class IdentityClient {
             .get();
 
     GroupInfo[] groups = IdentityClientHelper.handleResponse(response, GroupInfo[].class, url);
-    return groups;
+    Set<GroupInfo>  groupSet = new HashSet<>(Arrays.asList(groups));
+    return groupSet;
   }
 }
