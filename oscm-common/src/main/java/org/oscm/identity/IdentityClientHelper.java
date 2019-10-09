@@ -1,10 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: 20.09.2019
+ * <p>Creation Date: 20.09.2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityClientException;
@@ -79,7 +81,7 @@ public class IdentityClientHelper {
   public static String getAccessToken(IdentityConfiguration configuration) {
 
     String accessToken =
-        (String) configuration.getSessionContext().getAttribute(TokenType.ACCESS_TOKEN.name());
+        (String) configuration.getSessionContext().getAttribute(TokenType.IDP_ACCESS_TOKEN.name());
 
     return accessToken;
   }
@@ -108,7 +110,7 @@ public class IdentityClientHelper {
 
     configuration
         .getSessionContext()
-        .setAttribute(TokenType.ACCESS_TOKEN.name(), token.getAccessToken());
+        .setAttribute(TokenType.IDP_ACCESS_TOKEN.name(), token.getAccessToken());
 
     configuration
         .getSessionContext()

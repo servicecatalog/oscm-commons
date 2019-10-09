@@ -1,16 +1,18 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: 18.09.2019
+ * <p>Creation Date: 18.09.2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.validator;
 
 import org.oscm.identity.IdentityConfiguration;
+import org.oscm.identity.exception.IdentityConfigurationException;
 import org.oscm.identity.model.TokenType;
 import org.oscm.string.Strings;
-import org.oscm.identity.exception.IdentityConfigurationException;
 
 import javax.servlet.http.HttpSession;
 
@@ -43,7 +45,7 @@ public class IdentityValidator {
       throw new IdentityConfigurationException("Missing required setting: sessionContext");
     }
 
-    String accessToken = (String) sessionContext.getAttribute(TokenType.ACCESS_TOKEN.name());
+    String accessToken = (String) sessionContext.getAttribute(TokenType.IDP_ACCESS_TOKEN.name());
 
     if (Strings.isEmpty(accessToken)) {
       throw new IdentityConfigurationException(

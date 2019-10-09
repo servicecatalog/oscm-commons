@@ -9,7 +9,8 @@ package org.oscm.identity.model;
 
 /** Simple enum representing the type of oauth token */
 public enum TokenType {
-  ACCESS_TOKEN,
-  REFRESH_TOKEN,
-  ID_TOKEN
+  ID_TOKEN,
+  IDP_ACCESS_TOKEN,
+  APPLICATION_ACCESS_TOKEN,
+  REFRESH_TOKEN
 }
