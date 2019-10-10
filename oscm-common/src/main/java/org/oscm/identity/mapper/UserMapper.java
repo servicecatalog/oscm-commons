@@ -19,9 +19,6 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
-import lombok.extern.slf4j.Slf4j;
-
-
 
 /**
  * @author worf
