@@ -139,8 +139,7 @@ public abstract class IdentityClient {
             .get();
 
     UserInfo[] members = IdentityClientHelper.handleResponse(response, UserInfo[].class, url);
-    Set<UserInfo>  memberSet = new HashSet<>(Arrays.asList(members));
-    return memberSet;
+    return new HashSet<>(Arrays.asList(members));
   }
 
   /**
@@ -228,7 +227,6 @@ public abstract class IdentityClient {
             .get();
 
     GroupInfo[] groups = IdentityClientHelper.handleResponse(response, GroupInfo[].class, url);
-    Set<GroupInfo>  groupSet = new HashSet<>(Arrays.asList(groups));
-    return groupSet;
+    return new HashSet<>(Arrays.asList(groups));
   }
 }

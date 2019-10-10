@@ -19,11 +19,25 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
-public class UserMapper {
 
+
+/**
+ * @author worf
+ * Provides some static methods for mapping UserInfo -> VOUserDetails and VOUserDetails -> UserInfo. 
+ */
+public class UserMapper {
+    
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(UserMapper.class);
+    
+    private static String DEFAULT_LOCALE = "en";
 
+    
+    
+    /**
+     * @param userDetails a VOUserDetails object which should be mapped to UserInfo object.
+     * @return the UserInfo object with the values of the VOUserDetails object.
+     */
     public static UserInfo from(VOUserDetails userDetails) {
 
         UserInfo userInfo = new UserInfo();
@@ -32,11 +46,16 @@ public class UserMapper {
         userInfo.setLastName(userDetails.getLastName());
         userInfo.setEmail(userDetails.getEMail());
         userInfo.setPhone(userDetails.getPhone());
-        userInfo.setLocale("en"); // use en as default language
+        userInfo.setLocale(DEFAULT_LOCALE); 
         userInfo.setAddress(userDetails.getAddress());
         return userInfo;
     }
 
+    
+    /**
+     * @param userInfo a userInfo object which should be mapped to VOUserDetails object.
+     * @return the VOUserDetails object with the values of the userInfo object.
+     */
     public static VOUserDetails from(UserInfo userInfo) {
 
         VOUserDetails userDetails = new VOUserDetails();
@@ -51,12 +70,17 @@ public class UserMapper {
             userDetails.setEMail(userInfo.getUserId());
         }
         userDetails.setPhone(userInfo.getPhone());
-        userDetails.setLocale("en"); // use en as default language here
+        userDetails.setLocale(DEFAULT_LOCALE); 
         userDetails.setSalutation(mapGenderToSalutation(userInfo.getGender()));
         userDetails.setAddress(userInfo.getAddress());
         return userDetails;
     }
 
+    
+    /**
+     * @param userInfo a set of UserInfo or VOUserDetail objects
+     * @return a List of mapped objects. UserInfo -> VOUserDetails. VOUserDetails -> UserInfo. 
+     */
     public static <T> List<?> fromSet(Set<T> userInfo) {
         List<Object> userInfos = new ArrayList();
         if (userInfo.getClass() != null) {
@@ -76,6 +100,10 @@ public class UserMapper {
         return userInfos;
     }
 
+    /**
+     * @param gender the gender type of the oidc provider
+     * @return the oscm specific gender
+     */
     public static Salutation mapGenderToSalutation(String gender) {
 
         if (gender == null) {
