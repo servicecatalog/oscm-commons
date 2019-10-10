@@ -19,6 +19,8 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 
 /**
@@ -30,7 +32,7 @@ public class UserMapper {
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(UserMapper.class);
     
-    private static String DEFAULT_LOCALE = "en";
+    private static final String DEFAULT_LOCALE = "en";
 
     
     
