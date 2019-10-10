@@ -22,4 +22,7 @@ public class UserInfo {
     private String city;
     private String address;
     private String postalCode;
+    private String locale;
+    private String gender;
 }
+
