@@ -230,6 +230,14 @@ public abstract class IdentityClient {
     return new HashSet<>(Arrays.asList(groups));
   }
 
+  /**
+   * Retrieves id token (based on resource owner password credentials grant) from related OIDC
+   * provider
+   *
+   * @param username username for authenticating to identity provider
+   * @param password password for authenticating to identity provider
+   * @return id token
+   */
   public String getIdToken(String username, String password) {
 
     return null;
