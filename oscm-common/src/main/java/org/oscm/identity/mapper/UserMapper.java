@@ -76,7 +76,7 @@ public class UserMapper {
         return userInfos;
     }
 
-    protected static Salutation mapGenderToSalutation(String gender) {
+    public static Salutation mapGenderToSalutation(String gender) {
 
         if (gender == null) {
             return Salutation.MS;
