@@ -180,9 +180,10 @@ public abstract class IdentityClient {
    *
    * @param token
    * @param tokenType type of the token
+   * @return id of the user
    * @throws IdentityClientException
    */
-  public void validateToken(String token, TokenType tokenType) throws IdentityClientException {
+  public String validateToken(String token, TokenType tokenType) throws IdentityClientException {
 
     validator.validateRequiredSettings(configuration);
     ArgumentValidator.notEmptyString("token", token);
@@ -200,7 +201,8 @@ public abstract class IdentityClient {
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(tokenDetails, MediaType.APPLICATION_JSON));
 
-    IdentityClientHelper.handleResponse(response, String.class, url);
+    UserId user = IdentityClientHelper.handleResponse(response, UserId.class, url);
+    return user.getUserId();
   }
 
   /**
