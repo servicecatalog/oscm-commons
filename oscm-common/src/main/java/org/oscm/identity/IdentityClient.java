@@ -240,6 +240,10 @@ public abstract class IdentityClient {
    */
   public String getIdToken(String username, String password) {
 
+    validator.validateRequiredSettings(configuration);
+    ArgumentValidator.notEmptyString("username", username);
+    ArgumentValidator.notEmptyString("password", password);
+
     return null;
   }
 }
