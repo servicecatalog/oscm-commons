@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: 11.10.2019
+ *
+ *******************************************************************************/
 package org.oscm.identity.model;
 
 import lombok.AllArgsConstructor;
