@@ -231,19 +231,32 @@ public abstract class IdentityClient {
   }
 
   /**
-   * Retrieves id token (based on resource owner password credentials grant) from related OIDC
-   * provider
+   * Retrieves id token (based on resource owner password credentials grant) from related OIDC. If
+   * response is not successful (status is different than 2xx) it throws checked exception {@link
+   * IdentityClientException} provider
    *
    * @param username username for authenticating to identity provider
    * @param password password for authenticating to identity provider
    * @return id token
    */
-  public String getIdToken(String username, String password) {
+  public String getIdToken(String username, String password) throws IdentityClientException {
 
     validator.validateRequiredSettings(configuration);
     ArgumentValidator.notEmptyString("username", username);
     ArgumentValidator.notEmptyString("password", password);
 
-    return null;
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    String url = builder.buildIdTokenTokenUrl();
+
+    Credentials credentials = new Credentials(username, password);
+
+    Response response =
+        client
+            .target(url)
+            .request(MediaType.APPLICATION_JSON)
+            .post(Entity.entity(credentials, MediaType.APPLICATION_JSON));
+
+    IdToken token = IdentityClientHelper.handleResponse(response, IdToken.class, url);
+    return token.getIdToken();
   }
 }
