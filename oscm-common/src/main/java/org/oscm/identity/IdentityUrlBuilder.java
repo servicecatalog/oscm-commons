@@ -177,4 +177,16 @@ public class IdentityUrlBuilder {
             .toString();
     return url;
   }
+
+  /**
+   * Builds url for retrieving id token through oscm-identity
+   *
+   * @return url
+   */
+  public String buildIdTokenTokenUrl() {
+
+    String url = new StringBuilder(buildTokenUrl()).append("/").append("identify").toString();
+
+    return url;
+  }
 }
