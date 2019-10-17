@@ -1,10 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: 11.10.2019
+ * <p>Creation Date: 11.10.2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity;
 
 import org.junit.Before;
@@ -68,9 +70,8 @@ public class ApiIdentityClientTest {
   public void testGetIdToken_givenHttpResponseIsNotFound_thenExceptionIsThrown() throws Exception {
 
     // given
-    ErrorInfo errorInfo = new ErrorInfo();
-    errorInfo.setError("Not found");
-    errorInfo.setErrorDescription("Resource not found");
+    ErrorInfo errorInfo =
+        ErrorInfo.of().error("Not found").errorDescription("Resource not found").build();
 
     when(response.getStatus()).thenReturn(404);
     when(response.readEntity(ErrorInfo.class)).thenReturn(errorInfo);
