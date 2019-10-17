@@ -158,4 +158,35 @@ public class IdentityUrlBuilder {
             .toString();
     return url;
   }
+  
+  /**
+   * Builds url for retrieving groups through oscm-identity
+   *
+   * @return url
+   */
+  public String buildGroupsUrl() {
+  
+      String url =
+        new StringBuilder(HOSTNAME)
+            .append("/")
+            .append(RESOURCE_TENANTS)
+            .append("/")
+            .append(tenantId)
+            .append("/")
+            .append(RESOURCE_GROUPS)
+            .toString();
+    return url;
+  }
+
+  /**
+   * Builds url for retrieving id token through oscm-identity
+   *
+   * @return url
+   */
+  public String buildIdTokenTokenUrl() {
+
+    String url = new StringBuilder(buildTokenUrl()).append("/").append("identify").toString();
+
+    return url;
+  }
 }
