@@ -1,10 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: 18.09.2019
+ * <p>Creation Date: 18.09.2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityClientException;
@@ -26,11 +28,13 @@ import java.util.Set;
 /** Abstract client for accessing oscm-identity endpoints */
 public abstract class IdentityClient {
 
-  Client client = ClientBuilder.newClient();
-  IdentityValidator validator = new IdentityValidator();
+  Client client;
+  IdentityValidator validator;
   IdentityConfiguration configuration;
 
   IdentityClient(IdentityConfiguration configuration) {
+    this.client = ClientBuilder.newClient();
+    this.validator = new IdentityValidator();
     this.configuration = configuration;
   }
 
@@ -89,19 +93,64 @@ public abstract class IdentityClient {
    * @return group information
    * @throws IdentityClientException
    */
-  public GroupInfo createGroup(String groupName, String groupDescription) throws IdentityClientException {
+  public GroupInfo createGroup(String groupName, String groupDescription)
+      throws IdentityClientException {
 
     ArgumentValidator.notEmptyString("groupName", groupName);
     validate(configuration);
-
-    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
-    String url = builder.buildCreateGroupUrl();
     String accessToken = getAccessToken(AccessType.IDP);
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
 
-    GroupInfo groupInfo = new GroupInfo();
-    groupInfo.setName(groupName);
-    groupInfo.setDescription(groupDescription);
+    GroupInfo groupInfo = GroupInfo.of().name(groupName).description(groupDescription).build();
 
+    try {
+      return getExistingGroup(builder, client, groupInfo, accessToken);
+    } catch (IdentityClientException ignored) {
+    }
+    return createAndReturnNewGroup(builder, client, groupInfo, accessToken);
+  }
+
+  /**
+   * Searches for calls the API endpoint that will search for existing group with the name equal to
+   * the name of the one passed in GroupInfo object and returns it if possible
+   *
+   * @param builder endpoint url builder
+   * @param client client instance
+   * @param groupInfo Group Info wrapper that contains the data about group that is about to be
+   *     created
+   * @param accessToken IDP access token
+   * @return representation of existing group which creation was requested
+   * @throws IdentityClientException
+   */
+  private GroupInfo getExistingGroup(
+      IdentityUrlBuilder builder, Client client, GroupInfo groupInfo, String accessToken)
+      throws IdentityClientException {
+    String url = builder.buildCreateGroupUrl();
+    Response response =
+        client
+            .target(url + groupInfo.getName())
+            .request(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .get();
+    return IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
+  }
+
+  /**
+   * Calls the endpoint that will create new group in remote directory and returns representaion of
+   * this newly created object
+   *
+   * @param builder endpoint url builder
+   * @param client client instance
+   * @param groupInfo Group Info wrapper that contains the data about group that is about to be
+   *     created
+   * @param accessToken IDP access token
+   * @return representation of created group
+   * @throws IdentityClientException
+   */
+  private GroupInfo createAndReturnNewGroup(
+      IdentityUrlBuilder builder, Client client, GroupInfo groupInfo, String accessToken)
+      throws IdentityClientException {
+    String url = builder.buildCreateGroupUrl();
     Response response =
         client
             .target(url)
@@ -109,8 +158,7 @@ public abstract class IdentityClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .post(Entity.entity(groupInfo, MediaType.APPLICATION_JSON));
 
-    GroupInfo groupInfoResponse = IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
-    return groupInfoResponse;
+    return IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
   }
 
   /**
