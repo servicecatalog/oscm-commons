@@ -107,11 +107,10 @@ public abstract class IdentityClient {
     GroupInfo newOrExistingGroup;
     
     try {
-        newOrExistingGroup = getExistingGroup(builder, client, groupName, accessToken);
+        return getExistingGroup(builder, client, groupName, accessToken);
     } catch (IdentityClientException ignored) {
-        newOrExistingGroup = createAndReturnNewGroup(builder, client, groupInfo, accessToken);
     }
-    return newOrExistingGroup;
+    return createAndReturnNewGroup(builder, client, groupInfo, accessToken);
   }
 
   /**

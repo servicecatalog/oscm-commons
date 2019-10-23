@@ -52,11 +52,14 @@ public class IdentityClientTest {
 
   @Test
   public void shouldCreateGroup_whenThereIsNoGroupExisting() throws IdentityClientException {
-    GroupInfo expectedGroup = GroupInfo.of().name("groupName").description("description").build();
-    ErrorInfo errorEntity = ErrorInfo.of().error("Group not found").build();
+    GroupInfo expectedGroup = new GroupInfo();
+    expectedGroup.setName("groupName");
+    expectedGroup.setDescription("description");
+    ErrorInfo errorEntity = new ErrorInfo();
+    errorEntity.setError("Group not found");
 
     when(response.getStatus()).thenReturn(500, 500, 201);
-    when(response.readEntity(any(Class.class))).thenReturn(errorEntity, expectedGroup);
+    when(response.readEntity(any(Class.class))).thenReturn(expectedGroup);
 
     GroupInfo createdGroup =
         identityClient.createGroup(expectedGroup.getName(), expectedGroup.getDescription());
@@ -74,7 +77,9 @@ public class IdentityClientTest {
 
   @Test
   public void shouldReturnExistingGroup_whenGroupOfNameExists() throws IdentityClientException {
-    GroupInfo expectedGroup = GroupInfo.of().name("groupName").description("description").build();
+      GroupInfo expectedGroup = new GroupInfo();
+      expectedGroup.setName("groupName");
+      expectedGroup.setDescription("description");;
     when(response.getStatus()).thenReturn(200);
     when(response.readEntity(any(Class.class))).thenReturn(expectedGroup);
 
@@ -94,6 +99,7 @@ public class IdentityClientTest {
 
   private void mockHttpRequestCreation() {
     when(client.target(anyString())).thenReturn(webTarget);
+    when(webTarget.path(anyString())).thenReturn(webTarget);
     when(webTarget.request(anyString())).thenReturn(builder);
     when(builder.header(any(), any())).thenReturn(builder);
     when(builder.get()).thenReturn(response);
