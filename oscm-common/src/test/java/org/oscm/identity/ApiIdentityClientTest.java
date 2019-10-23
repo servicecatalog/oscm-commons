@@ -70,8 +70,8 @@ public class ApiIdentityClientTest {
   public void testGetIdToken_givenHttpResponseIsNotFound_thenExceptionIsThrown() throws Exception {
 
     // given
-    ErrorInfo errorInfo =
-        ErrorInfo.of().error("Not found").errorDescription("Resource not found").build();
+      ErrorInfo errorInfo = new ErrorInfo();
+      errorInfo.setError("Group not found");
 
     when(response.getStatus()).thenReturn(404);
     when(response.readEntity(ErrorInfo.class)).thenReturn(errorInfo);

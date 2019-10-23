@@ -101,10 +101,13 @@ public abstract class IdentityClient {
     String accessToken = getAccessToken(AccessType.IDP);
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
 
-    GroupInfo groupInfo = GroupInfo.of().name(groupName).description(groupDescription).build();
-
+    GroupInfo groupInfo = new GroupInfo();
+    groupInfo.setDescription(groupDescription);
+    groupInfo.setName(groupName);
+    GroupInfo newOrExistingGroup;
+    
     try {
-      return getExistingGroup(builder, client, groupInfo, accessToken);
+        return getExistingGroup(builder, client, groupName, accessToken);
     } catch (IdentityClientException ignored) {
     }
     return createAndReturnNewGroup(builder, client, groupInfo, accessToken);
@@ -123,15 +126,19 @@ public abstract class IdentityClient {
    * @throws IdentityClientException
    */
   private GroupInfo getExistingGroup(
-      IdentityUrlBuilder builder, Client client, GroupInfo groupInfo, String accessToken)
+      IdentityUrlBuilder builder, Client client, String groupInfo, String accessToken)
       throws IdentityClientException {
     String url = builder.buildCreateGroupUrl();
     Response response =
         client
-            .target(url + groupInfo.getName())
+            .target(url)
+            .path(groupInfo)
             .request(MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
+    if (Integer.toString(response.getStatus()).startsWith("5")) {
+        throw new IdentityClientException("Group don´t exist");
+    }
     return IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
   }
 

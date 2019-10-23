@@ -14,7 +14,6 @@ import lombok.Data;
 
 /** Simple data transfer object representing error information */
 @Data
-@Builder(builderMethodName = "of")
 public class ErrorInfo {
 
   private String error;
