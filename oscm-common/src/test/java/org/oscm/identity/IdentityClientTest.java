@@ -58,8 +58,9 @@ public class IdentityClientTest {
     ErrorInfo errorEntity = new ErrorInfo();
     errorEntity.setError("Group not found");
 
-    when(response.getStatus()).thenReturn(500, 500, 201);
-    when(response.readEntity(any(Class.class))).thenReturn(expectedGroup);
+
+    when(response.getStatus()).thenReturn(404, 404, 404, 201);
+    when(response.readEntity(any(Class.class))).thenReturn(errorEntity, expectedGroup);
 
     GroupInfo createdGroup =
         identityClient.createGroup(expectedGroup.getName(), expectedGroup.getDescription());

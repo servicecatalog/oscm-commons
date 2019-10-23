@@ -93,25 +93,32 @@ public abstract class IdentityClient {
    * @return group information
    * @throws IdentityClientException
    */
-  public GroupInfo createGroup(String groupName, String groupDescription)
-      throws IdentityClientException {
+    public GroupInfo createGroup(String groupName, String groupDescription)
+            throws IdentityClientException {
 
-    ArgumentValidator.notEmptyString("groupName", groupName);
-    validate(configuration);
-    String accessToken = getAccessToken(AccessType.IDP);
-    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+        ArgumentValidator.notEmptyString("groupName", groupName);
+        validate(configuration);
+        String accessToken = getAccessToken(AccessType.IDP);
+        IdentityUrlBuilder builder = new IdentityUrlBuilder(
+                configuration.getTenantId());
 
-    GroupInfo groupInfo = new GroupInfo();
-    groupInfo.setDescription(groupDescription);
-    groupInfo.setName(groupName);
-    GroupInfo newOrExistingGroup;
-    
-    try {
-        return getExistingGroup(builder, client, groupName, accessToken);
-    } catch (IdentityClientException ignored) {
+        GroupInfo newOrExistingGroup = null;
+        GroupInfo groupInfo = new GroupInfo();
+        groupInfo.setDescription(groupDescription);
+        groupInfo.setName(groupName);
+
+        try {
+            newOrExistingGroup = getExistingGroup(builder, client, groupName,
+                    accessToken);
+        } catch (IdentityClientException e) {
+            if (e.getStatus() == 404) {
+                newOrExistingGroup = createAndReturnNewGroup(builder, client,
+                        groupInfo, accessToken);
+            } else
+                throw e;
+        }
+        return newOrExistingGroup;
     }
-    return createAndReturnNewGroup(builder, client, groupInfo, accessToken);
-  }
 
   /**
    * Searches for calls the API endpoint that will search for existing group with the name equal to
@@ -136,9 +143,6 @@ public abstract class IdentityClient {
             .request(MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
-    if (Integer.toString(response.getStatus()).startsWith("5")) {
-        throw new IdentityClientException("Group don´t exist");
-    }
     return IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
   }
 
