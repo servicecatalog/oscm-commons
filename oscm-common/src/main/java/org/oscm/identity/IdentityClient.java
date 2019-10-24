@@ -31,7 +31,8 @@ public abstract class IdentityClient {
   Client client;
   IdentityValidator validator;
   IdentityConfiguration configuration;
-
+  private static final String OSCM_PREFIX = "OSCM_";
+  
   IdentityClient(IdentityConfiguration configuration) {
     this.client = ClientBuilder.newClient();
     this.validator = new IdentityValidator();
@@ -93,25 +94,29 @@ public abstract class IdentityClient {
    * @return group information
    * @throws IdentityClientException
    */
-  public GroupInfo createGroup(String groupName, String groupDescription)
-      throws IdentityClientException {
+    public GroupInfo createGroup(String groupName, String groupDescription)
+            throws IdentityClientException {
 
-    ArgumentValidator.notEmptyString("groupName", groupName);
-    validate(configuration);
-    String accessToken = getAccessToken(AccessType.IDP);
-    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+        ArgumentValidator.notEmptyString("groupName", groupName);
+        validate(configuration);
+        String accessToken = getAccessToken(AccessType.IDP);
+        IdentityUrlBuilder builder = new IdentityUrlBuilder(
+                configuration.getTenantId());
 
-    GroupInfo groupInfo = new GroupInfo();
-    groupInfo.setDescription(groupDescription);
-    groupInfo.setName(groupName);
-    GroupInfo newOrExistingGroup;
-    
-    try {
-        return getExistingGroup(builder, client, groupName, accessToken);
-    } catch (IdentityClientException ignored) {
+        GroupInfo newOrExistingGroup = null;
+
+        try {
+            newOrExistingGroup = getExistingGroup(builder, client, groupName,
+                    accessToken);
+        } catch (IdentityClientException e) {
+            if (e.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+                newOrExistingGroup = createAndReturnNewGroup(builder, client,
+                        groupName, groupDescription, accessToken);
+            } else
+                throw e;
+        }
+        return newOrExistingGroup;
     }
-    return createAndReturnNewGroup(builder, client, groupInfo, accessToken);
-  }
 
   /**
    * Searches for calls the API endpoint that will search for existing group with the name equal to
@@ -132,13 +137,10 @@ public abstract class IdentityClient {
     Response response =
         client
             .target(url)
-            .path(groupInfo)
+            .path(OSCM_PREFIX + groupInfo)
             .request(MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
-    if (Integer.toString(response.getStatus()).startsWith("5")) {
-        throw new IdentityClientException("Group don´t exist");
-    }
     return IdentityClientHelper.handleResponse(response, GroupInfo.class, url);
   }
 
@@ -155,8 +157,11 @@ public abstract class IdentityClient {
    * @throws IdentityClientException
    */
   private GroupInfo createAndReturnNewGroup(
-      IdentityUrlBuilder builder, Client client, GroupInfo groupInfo, String accessToken)
+      IdentityUrlBuilder builder, Client client, String groupName, String groupDescription, String accessToken)
       throws IdentityClientException {
+      GroupInfo groupInfo = new GroupInfo();
+      groupInfo.setDescription(OSCM_PREFIX + groupDescription);
+      groupInfo.setName(groupName);
     String url = builder.buildCreateGroupUrl();
     Response response =
         client
