@@ -32,8 +32,7 @@ public abstract class IdentityClient {
   IdentityValidator validator;
   IdentityConfiguration configuration;
   private static final String OSCM_PREFIX = "OSCM_";
-  private static final int HTTP_STATUS_NOT_FOUND = 404;
-
+  
   IdentityClient(IdentityConfiguration configuration) {
     this.client = ClientBuilder.newClient();
     this.validator = new IdentityValidator();
@@ -110,7 +109,7 @@ public abstract class IdentityClient {
             newOrExistingGroup = getExistingGroup(builder, client, groupName,
                     accessToken);
         } catch (IdentityClientException e) {
-            if (e.getStatus() == HTTP_STATUS_NOT_FOUND) {
+            if (e.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 newOrExistingGroup = createAndReturnNewGroup(builder, client,
                         groupName, groupDescription, accessToken);
             } else
