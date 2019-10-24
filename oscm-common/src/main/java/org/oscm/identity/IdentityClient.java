@@ -31,6 +31,7 @@ public abstract class IdentityClient {
   Client client;
   IdentityValidator validator;
   IdentityConfiguration configuration;
+  private static final String OSCM_PREFIX = "OSCM_";
 
   IdentityClient(IdentityConfiguration configuration) {
     this.client = ClientBuilder.newClient();
@@ -103,9 +104,6 @@ public abstract class IdentityClient {
                 configuration.getTenantId());
 
         GroupInfo newOrExistingGroup = null;
-        GroupInfo groupInfo = new GroupInfo();
-        groupInfo.setDescription(groupDescription);
-        groupInfo.setName(groupName);
 
         try {
             newOrExistingGroup = getExistingGroup(builder, client, groupName,
@@ -113,7 +111,7 @@ public abstract class IdentityClient {
         } catch (IdentityClientException e) {
             if (e.getStatus() == 404) {
                 newOrExistingGroup = createAndReturnNewGroup(builder, client,
-                        groupInfo, accessToken);
+                        groupName, groupDescription, accessToken);
             } else
                 throw e;
         }
@@ -139,7 +137,7 @@ public abstract class IdentityClient {
     Response response =
         client
             .target(url)
-            .path(groupInfo)
+            .path(OSCM_PREFIX + groupInfo)
             .request(MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
@@ -159,8 +157,11 @@ public abstract class IdentityClient {
    * @throws IdentityClientException
    */
   private GroupInfo createAndReturnNewGroup(
-      IdentityUrlBuilder builder, Client client, GroupInfo groupInfo, String accessToken)
+      IdentityUrlBuilder builder, Client client, String groupName, String groupDescription, String accessToken)
       throws IdentityClientException {
+      GroupInfo groupInfo = new GroupInfo();
+      groupInfo.setDescription(OSCM_PREFIX + groupDescription);
+      groupInfo.setName(groupName);
     String url = builder.buildCreateGroupUrl();
     Response response =
         client
