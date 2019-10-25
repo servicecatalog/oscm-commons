@@ -160,8 +160,8 @@ public abstract class IdentityClient {
       IdentityUrlBuilder builder, Client client, String groupName, String groupDescription, String accessToken)
       throws IdentityClientException {
       GroupInfo groupInfo = new GroupInfo();
-      groupInfo.setDescription(OSCM_PREFIX + groupDescription);
-      groupInfo.setName(groupName);
+      groupInfo.setDescription(groupDescription);
+      groupInfo.setName(OSCM_PREFIX + groupName);
     String url = builder.buildCreateGroupUrl();
     Response response =
         client
