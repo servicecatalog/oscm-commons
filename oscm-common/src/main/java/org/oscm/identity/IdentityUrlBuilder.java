@@ -7,6 +7,11 @@
  *******************************************************************************/
 package org.oscm.identity;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.oscm.identity.exception.IdentityClientException;
+
 /** Class responsible for building oscm-identity related endpoints */
 public class IdentityUrlBuilder {
 
@@ -19,6 +24,7 @@ public class IdentityUrlBuilder {
   private static String RESOURCE_USERS = "users";
   private static String RESOURCE_GROUPS = "groups";
   private static String RESOURCE_TOKEN = "token";
+  private static final String OSCM_PREFIX = "OSCM_";
 
   private String tenantId;
 
@@ -114,6 +120,22 @@ public class IdentityUrlBuilder {
             .toString();
 
     return url;
+  }
+  
+  /**
+   * Builds an URL encoded path from given group name
+   * 
+   * @param groupName - the group name to be encoded
+   * @return the URL encoded path
+   */
+  public String buildGroupPath(String groupName) throws IdentityClientException {
+    String path = new StringBuilder(OSCM_PREFIX)
+            .append(groupName).toString();
+    try {
+      return URLEncoder.encode(path, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IdentityClientException(e.getMessage());
+    }
   }
 
   /**

@@ -9,10 +9,9 @@
  */
 package org.oscm.identity;
 
-import org.oscm.identity.exception.IdentityClientException;
-import org.oscm.identity.model.*;
-import org.oscm.identity.validator.IdentityValidator;
-import org.oscm.validation.ArgumentValidator;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -21,9 +20,17 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import org.oscm.identity.exception.IdentityClientException;
+import org.oscm.identity.model.AccessType;
+import org.oscm.identity.model.Credentials;
+import org.oscm.identity.model.GroupInfo;
+import org.oscm.identity.model.IdToken;
+import org.oscm.identity.model.TokenDetails;
+import org.oscm.identity.model.TokenType;
+import org.oscm.identity.model.UserId;
+import org.oscm.identity.model.UserInfo;
+import org.oscm.identity.validator.IdentityValidator;
+import org.oscm.validation.ArgumentValidator;
 
 /** Abstract client for accessing oscm-identity endpoints */
 public abstract class IdentityClient {
@@ -119,25 +126,31 @@ public abstract class IdentityClient {
     }
 
   /**
-   * Searches for calls the API endpoint that will search for existing group with the name equal to
-   * the name of the one passed in GroupInfo object and returns it if possible
+   * Search the existing group with the name equal to the given group name and
+   * return detailed information of this group.
    *
-   * @param builder endpoint url builder
-   * @param client client instance
-   * @param groupInfo Group Info wrapper that contains the data about group that is about to be
-   *     created
-   * @param accessToken IDP access token
+   * @param builder
+   *          - an endpoint URL builder
+   * @param client
+   *          - a client instance
+   * @param groupName
+   *          - - the name of the group that is about to be created
+   * @param accessToken
+   *          - required IDP access token
    * @return representation of existing group which creation was requested
    * @throws IdentityClientException
+   *           - if a group with the given name could not be found or any other
+   *           problem occurred on retrieving the requested information.
    */
   private GroupInfo getExistingGroup(
-      IdentityUrlBuilder builder, Client client, String groupInfo, String accessToken)
+      IdentityUrlBuilder builder, Client client, String groupName, String accessToken)
       throws IdentityClientException {
     String url = builder.buildCreateGroupUrl();
+    String path = builder.buildGroupPath(groupName);
     Response response =
         client
             .target(url)
-            .path(OSCM_PREFIX + groupInfo)
+            .path(path)
             .request(MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .get();
