@@ -25,6 +25,8 @@ import java.util.Set;
  */
 public class WebIdentityClient extends IdentityClient {
 
+    
+  private static final String EXPRIED_TOKEN="Access token has expired.";
 
   public WebIdentityClient(IdentityConfiguration configuration) {
     super(configuration);
@@ -108,7 +110,7 @@ public class WebIdentityClient extends IdentityClient {
 
   private boolean refreshAccessToken(IdentityClientException exception) throws IdentityClientException {
 
-    if (exception.getMessage().equals("Access token has expired.")) {
+    if (EXPRIED_TOKEN.equals(exception.getMessage())) {
 
       String refreshToken = IdentityClientHelper.getRefreshToken(configuration);
       IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());

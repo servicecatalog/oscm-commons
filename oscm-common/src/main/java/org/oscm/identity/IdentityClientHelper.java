@@ -60,15 +60,30 @@ public class IdentityClientHelper {
       String error = errorInfo.getError();
       String errorDescription = errorInfo.getErrorDescription();
 
-      IdentityClientException clientException = new IdentityClientException(errorDescription);
-
-      clientException.setError(error);
-      clientException.setStatus(response.getStatus());
-
-      LOGGER.logError(LogMessageIdentifier.ERROR_IDENTITY_CLIENT_DETAILS, error, errorDescription);
+      IdentityClientException clientException = getClientException(response.getStatus(), errorDescription, error);
       throw clientException;
     }
   }
+  
+  private static IdentityClientException getClientException(int status, String errorDescription, String error) 
+          throws IdentityClientException {
+       
+        IdentityClientException clientException;
+        
+        if (status == Response.Status.BAD_REQUEST.getStatusCode()) {
+            clientException = new IdentityClientException(errorDescription, IdentityClientException.Reason.BAD_REQUEST);
+        } else if (status == Response.Status.NOT_FOUND.getStatusCode()) {
+            clientException = new IdentityClientException(errorDescription, IdentityClientException.Reason.NOT_FOUND);
+        } else {
+            clientException = new IdentityClientException(errorDescription, IdentityClientException.Reason.OIDC_ERROR);
+        }
+        
+        clientException.setError(error);
+        clientException.setStatus(status);
+        LOGGER.logError(LogMessageIdentifier.ERROR_IDENTITY_CLIENT_DETAILS,
+                error, errorDescription);
+        return clientException;
+    }
 
   /**
    * Retrieves access token value form the session context
