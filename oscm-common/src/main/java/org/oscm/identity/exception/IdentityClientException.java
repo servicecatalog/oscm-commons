@@ -17,11 +17,10 @@ import org.oscm.internal.types.exception.beans.ApplicationExceptionBean;
 public class IdentityClientException extends SaaSApplicationException {
 
   private static final long serialVersionUID = 6120364217852763091L;
-  private ApplicationExceptionBean bean = new ApplicationExceptionBean();
     
-  private Reason reason;
   private int status;
   private String error;
+  private Reason reason;
 
   public IdentityClientException(String message) {
     super(message);
@@ -33,7 +32,6 @@ public class IdentityClientException extends SaaSApplicationException {
   
   public IdentityClientException(String message, ApplicationExceptionBean bean) {
       super(message, bean);
-      this.bean = bean;
   }
   
   public IdentityClientException(String message, Reason reason) {
@@ -56,6 +54,10 @@ public class IdentityClientException extends SaaSApplicationException {
 
   public void setError(String error) {
     this.error = error;
+  }
+  
+  public Reason getReason() {
+      return this.reason;
   }
   
 
