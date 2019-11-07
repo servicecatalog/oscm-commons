@@ -68,21 +68,21 @@ public class IdentityClientHelper {
   private static IdentityClientException getClientException(int status, String errorDescription, String error) 
           throws IdentityClientException {
        
-        IdentityClientException clientException;
+        IdentityClientException cex;
         
         if (status == Response.Status.BAD_REQUEST.getStatusCode()) {
-            clientException = new IdentityClientException(errorDescription, IdentityClientException.Reason.BAD_REQUEST);
+            cex = new IdentityClientException(errorDescription, IdentityClientException.Reason.BAD_REQUEST);
         } else if (status == Response.Status.NOT_FOUND.getStatusCode()) {
-            clientException = new IdentityClientException(errorDescription, IdentityClientException.Reason.NOT_FOUND);
+            cex = new IdentityClientException(errorDescription, IdentityClientException.Reason.NOT_FOUND);
         } else {
-            clientException = new IdentityClientException(errorDescription, IdentityClientException.Reason.OIDC_ERROR);
+            cex = new IdentityClientException(errorDescription, IdentityClientException.Reason.OIDC_ERROR);
         }
         
-        clientException.setError(error);
-        clientException.setStatus(status);
+        cex.setError(error);
+        cex.setStatus(status);
         LOGGER.logError(LogMessageIdentifier.ERROR_IDENTITY_CLIENT_DETAILS,
                 error, errorDescription);
-        return clientException;
+        return cex;
     }
 
   /**
