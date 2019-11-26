@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.validation.Valid;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -92,7 +93,7 @@ public abstract class IdentityClient {
     return userInfoResponse;
   }
 
-  public Response updateUser(UserInfo user) throws IdentityClientException {
+  public Response updateUser(@Valid UserInfo user) throws IdentityClientException {
 
     validate(configuration);
     //TODO: Validate user object
