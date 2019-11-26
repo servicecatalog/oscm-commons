@@ -94,9 +94,7 @@ public abstract class IdentityClient {
   }
 
   public Response updateUser(@Valid UserInfo user) throws IdentityClientException {
-
     validate(configuration);
-    //TODO: Validate user object
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
     String url = builder.getUpdateUserUrl(user);
