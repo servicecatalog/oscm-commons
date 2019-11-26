@@ -9,29 +9,21 @@
  */
 package org.oscm.identity;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import org.oscm.identity.exception.IdentityClientException;
+import org.oscm.identity.model.*;
+import org.oscm.identity.validator.IdentityValidator;
+import org.oscm.validation.ArgumentValidator;
 
-import javax.validation.Valid;
+import javax.validation.ValidationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.oscm.identity.exception.IdentityClientException;
-import org.oscm.identity.model.AccessType;
-import org.oscm.identity.model.Credentials;
-import org.oscm.identity.model.GroupInfo;
-import org.oscm.identity.model.IdToken;
-import org.oscm.identity.model.TokenDetails;
-import org.oscm.identity.model.TokenType;
-import org.oscm.identity.model.UserId;
-import org.oscm.identity.model.UserInfo;
-import org.oscm.identity.validator.IdentityValidator;
-import org.oscm.validation.ArgumentValidator;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Abstract client for accessing oscm-identity endpoints */
 public abstract class IdentityClient {
@@ -40,7 +32,7 @@ public abstract class IdentityClient {
   IdentityValidator validator;
   IdentityConfiguration configuration;
   private static final String OSCM_PREFIX = "OSCM_";
-  
+
   IdentityClient(IdentityConfiguration configuration) {
     this.client = ClientBuilder.newClient();
     this.validator = new IdentityValidator();
@@ -93,21 +85,31 @@ public abstract class IdentityClient {
     return userInfoResponse;
   }
 
-  public Response updateUser(@Valid UserInfo user) throws IdentityClientException {
+  /**
+   * Updated the user on the Identity provider's side. It requires 'userId' to be present in the
+   * UserInfo object.
+   *
+   * @param user object containing data about updated user
+   * @return standard HTTP 'Response'
+   * @throws IdentityClientException
+   */
+  public Response updateUser(UserInfo user) throws IdentityClientException {
     validate(configuration);
+    validateUserObject(user);
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
     String url = builder.getUpdateUserUrl(user);
     String accessToken = getAccessToken(AccessType.IDP);
 
-    Response response = client
+    Response response =
+        client
             .target(url)
             .path(user.getUserId())
             .request(MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .put(Entity.entity(user, MediaType.APPLICATION_JSON));
 
-    return response;
+    return IdentityClientHelper.handleResponse(response, url);
   }
 
   /**
@@ -119,46 +121,38 @@ public abstract class IdentityClient {
    * @return group information
    * @throws IdentityClientException
    */
-    public GroupInfo createGroup(String groupName, String groupDescription)
-            throws IdentityClientException {
+  public GroupInfo createGroup(String groupName, String groupDescription)
+      throws IdentityClientException {
 
-        ArgumentValidator.notEmptyString("groupName", groupName);
-        validate(configuration);
-        String accessToken = getAccessToken(AccessType.IDP);
-        IdentityUrlBuilder builder = new IdentityUrlBuilder(
-                configuration.getTenantId());
+    ArgumentValidator.notEmptyString("groupName", groupName);
+    validate(configuration);
+    String accessToken = getAccessToken(AccessType.IDP);
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
 
-        GroupInfo newOrExistingGroup = null;
+    GroupInfo newOrExistingGroup = null;
 
-        try {
-            newOrExistingGroup = getExistingGroup(builder, client, groupName,
-                    accessToken);
-        } catch (IdentityClientException e) {
-            if (e.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
-                newOrExistingGroup = createAndReturnNewGroup(builder, client,
-                        groupName, groupDescription, accessToken);
-            } else
-                throw e;
-        }
-        return newOrExistingGroup;
+    try {
+      newOrExistingGroup = getExistingGroup(builder, client, groupName, accessToken);
+    } catch (IdentityClientException e) {
+      if (e.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+        newOrExistingGroup =
+            createAndReturnNewGroup(builder, client, groupName, groupDescription, accessToken);
+      } else throw e;
     }
+    return newOrExistingGroup;
+  }
 
   /**
-   * Search the existing group with the name equal to the given group name and
-   * return detailed information of this group.
+   * Search the existing group with the name equal to the given group name and return detailed
+   * information of this group.
    *
-   * @param builder
-   *          - an endpoint URL builder
-   * @param client
-   *          - a client instance
-   * @param groupName
-   *          - - the name of the group that is about to be created
-   * @param accessToken
-   *          - required IDP access token
+   * @param builder - an endpoint URL builder
+   * @param client - a client instance
+   * @param groupName - - the name of the group that is about to be created
+   * @param accessToken - required IDP access token
    * @return representation of existing group which creation was requested
-   * @throws IdentityClientException
-   *           - if a group with the given name could not be found or any other
-   *           problem occurred on retrieving the requested information.
+   * @throws IdentityClientException - if a group with the given name could not be found or any
+   *     other problem occurred on retrieving the requested information.
    */
   private GroupInfo getExistingGroup(
       IdentityUrlBuilder builder, Client client, String groupName, String accessToken)
@@ -181,18 +175,22 @@ public abstract class IdentityClient {
    *
    * @param builder endpoint url builder
    * @param client client instance
-   * @param groupInfo Group Info wrapper that contains the data about group that is about to be
+   * @param groupName Group Info wrapper that contains the data about group that is about to be
    *     created
    * @param accessToken IDP access token
    * @return representation of created group
    * @throws IdentityClientException
    */
   private GroupInfo createAndReturnNewGroup(
-      IdentityUrlBuilder builder, Client client, String groupName, String groupDescription, String accessToken)
+      IdentityUrlBuilder builder,
+      Client client,
+      String groupName,
+      String groupDescription,
+      String accessToken)
       throws IdentityClientException {
-      GroupInfo groupInfo = new GroupInfo();
-      groupInfo.setDescription(groupDescription);
-      groupInfo.setName(OSCM_PREFIX + groupName);
+    GroupInfo groupInfo = new GroupInfo();
+    groupInfo.setDescription(groupDescription);
+    groupInfo.setName(OSCM_PREFIX + groupName);
     String url = builder.buildCreateGroupUrl();
     Response response =
         client
@@ -351,5 +349,15 @@ public abstract class IdentityClient {
 
     IdToken token = IdentityClientHelper.handleResponse(response, IdToken.class, url);
     return token.getIdToken();
+  }
+
+  /**
+   * Validated if provided user object has all mandatory fields filled up
+   *
+   * @param user object to be validated
+   */
+  private void validateUserObject(UserInfo user) {
+    if (user.getUserId() == null || user.getUserId().isEmpty())
+      throw new ValidationException("UserId should not be null nor empty!");
   }
 }

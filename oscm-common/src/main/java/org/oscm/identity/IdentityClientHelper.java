@@ -1,10 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: 20.09.2019
+ * <p>Creation Date: 20.09.2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity;
 
 import org.oscm.identity.exception.IdentityClientException;
@@ -60,30 +62,64 @@ public class IdentityClientHelper {
       String error = errorInfo.getError();
       String errorDescription = errorInfo.getErrorDescription();
 
-      IdentityClientException clientException = getClientException(response.getStatus(), errorDescription, error);
+      IdentityClientException clientException =
+          getClientException(response.getStatus(), errorDescription, error);
       throw clientException;
     }
   }
-  
-  private static IdentityClientException getClientException(int status, String errorDescription, String error) 
-          throws IdentityClientException {
-       
-        IdentityClientException cex;
-        
-        if (status == Response.Status.BAD_REQUEST.getStatusCode()) {
-            cex = new IdentityClientException(errorDescription, IdentityClientException.Reason.BAD_REQUEST);
-        } else if (status == Response.Status.NOT_FOUND.getStatusCode()) {
-            cex = new IdentityClientException(errorDescription, IdentityClientException.Reason.NOT_FOUND);
-        } else {
-            cex = new IdentityClientException(errorDescription, IdentityClientException.Reason.OIDC_ERROR);
-        }
-        
-        cex.setError(error);
-        cex.setStatus(status);
-        LOGGER.logError(LogMessageIdentifier.ERROR_IDENTITY_CLIENT_DETAILS,
-                error, errorDescription);
-        return cex;
+
+  /**
+   * Handles http response with no body returned. In case it is successful, it provides client with
+   * response body objects, it provides client with {@link IdentityClientException} otherwise
+   *
+   * @param response http response
+   * @param url
+   * @return response body
+   * @throws IdentityClientException
+   */
+  public static Response handleResponse(Response response, String url)
+      throws IdentityClientException {
+
+    int status = response.getStatus();
+    LOGGER.logInfo(
+        Log4jLogger.SYSTEM_LOG,
+        LogMessageIdentifier.INFO_IDENTITY_CLIENT_RESPONSE,
+        url,
+        Integer.toString(status));
+
+    if (isResponseSuccessful(response)) {
+      return response;
+    } else {
+      ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
+      String error = errorInfo.getError();
+      String errorDescription = errorInfo.getErrorDescription();
+
+      IdentityClientException clientException =
+          getClientException(response.getStatus(), errorDescription, error);
+      throw clientException;
     }
+  }
+
+  private static IdentityClientException getClientException(
+      int status, String errorDescription, String error) throws IdentityClientException {
+
+    IdentityClientException cex;
+
+    if (status == Response.Status.BAD_REQUEST.getStatusCode()) {
+      cex =
+          new IdentityClientException(errorDescription, IdentityClientException.Reason.BAD_REQUEST);
+    } else if (status == Response.Status.NOT_FOUND.getStatusCode()) {
+      cex = new IdentityClientException(errorDescription, IdentityClientException.Reason.NOT_FOUND);
+    } else {
+      cex =
+          new IdentityClientException(errorDescription, IdentityClientException.Reason.OIDC_ERROR);
+    }
+
+    cex.setError(error);
+    cex.setStatus(status);
+    LOGGER.logError(LogMessageIdentifier.ERROR_IDENTITY_CLIENT_DETAILS, error, errorDescription);
+    return cex;
+  }
 
   /**
    * Retrieves access token value form the session context

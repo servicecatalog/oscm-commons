@@ -26,8 +26,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -102,6 +101,32 @@ public class IdentityClientTest {
 
   @Test
   public void shouldUpdateTheUser() {
+    when(response.getStatus()).thenReturn(Response.Status.NO_CONTENT.getStatusCode());
+
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("some@user.com");
+
+    assertThatCode(() -> identityClient.updateUser(userInfo)).doesNotThrowAnyException();
+  }
+
+  @Test
+  public void shouldNotUpdateTheUser_whenRequestSendingFailed() {
+    ErrorInfo errorEntity = new ErrorInfo();
+    errorEntity.setError("Something went wrong during sending the request");
+
+    when(response.getStatus()).thenReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+    when(response.readEntity(any(Class.class))).thenReturn(errorEntity);
+
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("some@user.com");
+
+    assertThatExceptionOfType(IdentityClientException.class).isThrownBy(() -> identityClient.updateUser(userInfo));
+  }
+
+  @Test
+  public void shouldNotUpdateTheUser_whenUserIdIsNotPresent() {
+    when(response.getStatus()).thenReturn(Response.Status.NO_CONTENT.getStatusCode());
+
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("some@user.com");
 
