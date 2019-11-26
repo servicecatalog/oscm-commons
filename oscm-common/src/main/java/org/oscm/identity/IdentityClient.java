@@ -92,6 +92,25 @@ public abstract class IdentityClient {
     return userInfoResponse;
   }
 
+  public Response updateUser(UserInfo user) throws IdentityClientException {
+
+    validate(configuration);
+    //TODO: Validate user object
+
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+    String url = builder.getUpdateUserUrl(user);
+    String accessToken = getAccessToken(AccessType.IDP);
+
+    Response response = client
+            .target(url)
+            .path(user.getUserId())
+            .request(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .put(Entity.entity(user, MediaType.APPLICATION_JSON));
+
+    return response;
+  }
+
   /**
    * Creates user group in related OIDC provider. If response is not successful (status is different
    * than 2xx) it throws checked exception {@link IdentityClientException}
