@@ -67,7 +67,12 @@ public class IdentityClientException extends SaaSApplicationException {
        * A http statuscode 400 is the result of the IdentityClient request 
        */
       BAD_REQUEST,
-
+      
+      /**
+       * A http statuscode 403 is the result of the IdentityClient request 
+       */
+      FORBIDDEN,
+      
       /**
        * A http statuscode 404 is the result of the IdentityClient request 
        */
