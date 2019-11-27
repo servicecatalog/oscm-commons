@@ -98,7 +98,7 @@ public abstract class IdentityClient {
     validateUserObject(user);
 
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
-    String url = builder.getUpdateUserUrl(user);
+    String url = builder.getUpdateUserUrl();
     String accessToken = getAccessToken(AccessType.IDP);
 
     Response response =

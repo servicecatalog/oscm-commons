@@ -215,10 +215,10 @@ public class IdentityUrlBuilder {
 
   /**
    * Builds url for updating the user through oscm-identity
-   * @param user object that contains updated user data
+   *
    * @return url
    */
-  public String getUpdateUserUrl(UserInfo user) {
+  public String getUpdateUserUrl() {
     return new StringBuilder(HOSTNAME)
             .append("/")
             .append(RESOURCE_TENANTS)
@@ -226,8 +226,6 @@ public class IdentityUrlBuilder {
             .append(tenantId)
             .append("/")
             .append(RESOURCE_USERS)
-            .append("/")
-            .append(user.getUserId())
             .toString();
   }
 }
