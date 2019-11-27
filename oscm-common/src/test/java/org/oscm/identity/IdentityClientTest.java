@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.oscm.identity.exception.IdentityClientException;
 import org.oscm.identity.model.ErrorInfo;
 import org.oscm.identity.model.GroupInfo;
+import org.oscm.identity.model.UserInfo;
 import org.oscm.identity.validator.IdentityValidator;
 
 import javax.servlet.http.HttpSession;
@@ -25,7 +26,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -58,7 +59,6 @@ public class IdentityClientTest {
     ErrorInfo errorEntity = new ErrorInfo();
     errorEntity.setError("Group not found");
 
-
     when(response.getStatus()).thenReturn(404, 404, 404, 201);
     when(response.readEntity(any(Class.class))).thenReturn(errorEntity, expectedGroup);
 
@@ -78,9 +78,10 @@ public class IdentityClientTest {
 
   @Test
   public void shouldReturnExistingGroup_whenGroupOfNameExists() throws IdentityClientException {
-      GroupInfo expectedGroup = new GroupInfo();
-      expectedGroup.setName("groupName");
-      expectedGroup.setDescription("description");;
+    GroupInfo expectedGroup = new GroupInfo();
+    expectedGroup.setName("groupName");
+    expectedGroup.setDescription("description");
+
     when(response.getStatus()).thenReturn(200);
     when(response.readEntity(any(Class.class))).thenReturn(expectedGroup);
 
@@ -98,6 +99,40 @@ public class IdentityClientTest {
         .isEqualTo(expectedGroup.getDescription());
   }
 
+  @Test
+  public void shouldUpdateTheUser() {
+    when(response.getStatus()).thenReturn(Response.Status.NO_CONTENT.getStatusCode());
+
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("some@user.com");
+
+    assertThatCode(() -> identityClient.updateUser(userInfo)).doesNotThrowAnyException();
+  }
+
+  @Test
+  public void shouldNotUpdateTheUser_whenRequestSendingFailed() {
+    ErrorInfo errorEntity = new ErrorInfo();
+    errorEntity.setError("Something went wrong during sending the request");
+
+    when(response.getStatus()).thenReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+    when(response.readEntity(any(Class.class))).thenReturn(errorEntity);
+
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("some@user.com");
+
+    assertThatExceptionOfType(IdentityClientException.class).isThrownBy(() -> identityClient.updateUser(userInfo));
+  }
+
+  @Test
+  public void shouldNotUpdateTheUser_whenUserIdIsNotPresent() {
+    when(response.getStatus()).thenReturn(Response.Status.NO_CONTENT.getStatusCode());
+
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("some@user.com");
+
+    assertThatCode(() -> identityClient.updateUser(userInfo)).doesNotThrowAnyException();
+  }
+
   private void mockHttpRequestCreation() {
     when(client.target(anyString())).thenReturn(webTarget);
     when(webTarget.path(anyString())).thenReturn(webTarget);
@@ -105,5 +140,6 @@ public class IdentityClientTest {
     when(builder.header(any(), any())).thenReturn(builder);
     when(builder.get()).thenReturn(response);
     when(builder.post(any())).thenReturn(response);
+    when(builder.put(any())).thenReturn(response);
   }
 }
