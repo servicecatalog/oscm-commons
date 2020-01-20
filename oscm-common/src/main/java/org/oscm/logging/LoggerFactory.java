@@ -18,15 +18,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.RollingFileAppender;
-
 /**
  * Provides functionality to obtain logger objects and to modify their settings,
  * e.g. the log level.
@@ -147,6 +138,7 @@ public class LoggerFactory {
         reverseProxyLogAppender.setName(reverseProxyLogAppenderName);
     }
 
+    //TODO: Modify this for logging to FILE
     private static void setFileAppendersForLogger(Log4jLogger logger) {
         Level level = determineLogLevel(logLevel);
 
@@ -178,6 +170,7 @@ public class LoggerFactory {
         return;
     }
 
+    //TODO: Modify this for logging to CONSOLE
     private static void setConsoleAppenderForLogger(Log4jLogger logger) {
         if (consoleAppender == null) {
             consoleAppender = new ConsoleAppender(getLayout());
