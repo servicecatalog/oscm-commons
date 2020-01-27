@@ -11,6 +11,8 @@ package org.oscm.logging;
 
 import com.google.common.collect.Lists;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.appender.FileAppender;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -38,12 +40,18 @@ public class LoggerFactoryTest {
   private static PrintStream mockConsoleOut;
   private static Log4jLogger oscmLogger;
   private static ByteArrayOutputStream outputStream;
-  private URI temporaryLogFilesDirectoryURI;
+  private static URI temporaryLogFilesDirectoryURI;
 
   private static final String TEST_EXCEPTION_MESSAGE = "Some unique exception message";
 
   @BeforeClass
-  public static void before(){
+  public static void before() {
+    try {
+      temporaryLogFilesDirectoryURI = Files.createTempDirectory("temporaryLogFiles").toUri();
+    } catch (IOException e) {
+      fail(e.getMessage(), e);
+    }
+
     outputStream = new ByteArrayOutputStream();
     mockConsoleOut = new PrintStream(outputStream);
     System.setOut(mockConsoleOut);
@@ -73,18 +81,18 @@ public class LoggerFactoryTest {
     assertNotNull(oscmLogger);
   }
 
-    @Test
-    public void shouldGetLoggerWithLocale() {
-      // WHEN
-      oscmLogger = LoggerFactory.getLogger(this.getClass(), Locale.ENGLISH);
+  @Test
+  public void shouldGetLoggerWithLocale() {
+    // WHEN
+    oscmLogger = LoggerFactory.getLogger(this.getClass(), Locale.ENGLISH);
 
-      // THEN
-      assertNotNull(oscmLogger);
-    }
+    // THEN
+    assertNotNull(oscmLogger);
+  }
 
   @Test
   public void when_logERROR_then_shouldLogToConsole() {
-    //GIVEN
+    // GIVEN
     LoggerFactory.setLogLevel(oscmLogger, Level.ERROR);
 
     // WHEN
@@ -102,41 +110,39 @@ public class LoggerFactoryTest {
 
   @Test
   public void when_logWARN_then_shouldLogToConsole() {
-    //GIVEN
+    // GIVEN
     LoggerFactory.setLogLevel(oscmLogger, Level.WARN);
 
     // WHEN
     oscmLogger.logWarn(
-            Log4jLogger.SYSTEM_LOG,
-            new ValidationException(TEST_EXCEPTION_MESSAGE),
-            LogMessageIdentifier.ERROR_READING_PROPERTIES);
+        Log4jLogger.SYSTEM_LOG,
+        new ValidationException(TEST_EXCEPTION_MESSAGE),
+        LogMessageIdentifier.ERROR_READING_PROPERTIES);
 
     // THEN
     assertTrue(outputStream.toString().contains("[main] WARN"));
     assertTrue(outputStream.toString().contains(TEST_EXCEPTION_MESSAGE));
     assertTrue(
-            outputStream.toString().contains(LogMessageIdentifier.ERROR_READING_PROPERTIES.getMsgId()));
+        outputStream.toString().contains(LogMessageIdentifier.ERROR_READING_PROPERTIES.getMsgId()));
   }
 
   @Test
   public void when_logINFO_then_shouldLogToConsole() {
-    //GIVEN
+    // GIVEN
     LoggerFactory.setLogLevel(oscmLogger, Level.INFO);
 
     // WHEN
-    oscmLogger.logInfo(
-            Log4jLogger.SYSTEM_LOG,
-            LogMessageIdentifier.ERROR_READING_PROPERTIES);
+    oscmLogger.logInfo(Log4jLogger.SYSTEM_LOG, LogMessageIdentifier.ERROR_READING_PROPERTIES);
 
     // THEN
     assertTrue(outputStream.toString().contains("[main] INFO"));
     assertTrue(
-            outputStream.toString().contains(LogMessageIdentifier.ERROR_READING_PROPERTIES.getMsgId()));
+        outputStream.toString().contains(LogMessageIdentifier.ERROR_READING_PROPERTIES.getMsgId()));
   }
 
   @Test
   public void when_logDEBUG_then_shouldLogToConsole() {
-    //GIVEN
+    // GIVEN
     LoggerFactory.setLogLevel(oscmLogger, Level.DEBUG);
 
     // WHEN
@@ -144,16 +150,15 @@ public class LoggerFactoryTest {
 
     // THEN
     assertTrue(outputStream.toString().contains("[main] DEBUG"));
-    assertTrue(
-            outputStream.toString().contains(TEST_EXCEPTION_MESSAGE));
+    assertTrue(outputStream.toString().contains(TEST_EXCEPTION_MESSAGE));
   }
 
   @Test
   public void given_standardLogger_then_shouldLogToFiles() throws IOException {
     // GIVEN
+    oscmLogger = LoggerFactory.getLogger(this.getClass());
     LoggerFactory.activateRollingFileAppender(
         temporaryLogFilesDirectoryURI.getPath(), null, "ERROR");
-    oscmLogger = LoggerFactory.getLogger(this.getClass());
 
     // WHEN
     invokeFileLoggerFor(Log4jLogger.SYSTEM_LOG);
@@ -174,33 +179,6 @@ public class LoggerFactoryTest {
         Files.list(Paths.get(temporaryLogFilesDirectoryURI)).collect(Collectors.toList()).stream()
             .allMatch(p -> logFilesContentValidationPredicate().test(p)));
   }
-
-//  @Test
-//  public void given_loggerWithLocale_then_shouldLogToFiles() throws IOException {
-//    // GIVEN
-//    LoggerFactory.activateRollingFileAppender(
-//        temporaryLogFilesDirectoryURI.getPath(), null, "DEBUG");
-//    oscmLogger = LoggerFactory.getLogger(this.getClass(), Locale.ENGLISH);
-//
-//    // WHEN
-//    invokeFileLoggerFor(Log4jLogger.SYSTEM_LOG);
-//    invokeFileLoggerFor(Log4jLogger.ACCESS_LOG);
-//    invokeFileLoggerFor(Log4jLogger.AUDIT_LOG);
-//    invokeFileLoggerFor(Log4jLogger.PROXY_LOG);
-//
-//    // THEN
-//    assertEquals(4, Files.list(Paths.get(temporaryLogFilesDirectoryURI)).count());
-//    assertTrue(
-//        Files.list(Paths.get(temporaryLogFilesDirectoryURI))
-//            .map(Path::getFileName)
-//            .map(Path::toString)
-//            .collect(Collectors.toSet())
-//            .containsAll(
-//                Lists.newArrayList("audit.log", "system.log", "access.log", "reverseproxy.log")));
-//    assertTrue(
-//        Files.list(Paths.get(temporaryLogFilesDirectoryURI)).collect(Collectors.toList()).stream()
-//            .allMatch(p -> logFilesContentValidationPredicate().test(p)));
-//  }
 
   private void invokeFileLoggerFor(int logFileIdentifier) {
     oscmLogger.logError(
@@ -229,11 +207,6 @@ public class LoggerFactoryTest {
       reinitializeField("logLevel");
       reinitializeField("logFilePath");
       reinitializeField("logConfigPath");
-      reinitializeField("systemLogAppender");
-      reinitializeField("accessLogAppender");
-      reinitializeField("auditLogAppender");
-      reinitializeField("reverseProxyLogAppender");
-      reinitializeField("consoleAppender");
       reinitializeField("switchedToFileAppender", false);
     } catch (NoSuchFieldException | IllegalAccessException e) {
       fail(e.getMessage(), e);
