@@ -18,6 +18,7 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
@@ -67,8 +68,11 @@ public class LoggerFactory {
   public static Log4jLogger getLogger(Class<?> category, Locale locale) {
     synchronized (managedLoggers) {
       Log4jLogger logger = new Log4jLogger(category, locale);
+
       if (switchedToFileAppender) {
 //        setFileAppendersForLogger(logger);
+        Appender appender = FileAppender.newBuilder().withAppend(true).withFileName(logFilePath+"system.log").build();
+        logger.systemLogger.addAppender(appender);
       } else {
         setConsoleAppenderForLogger(logger);
       }
@@ -83,12 +87,13 @@ public class LoggerFactory {
    * Changes the initial ConsoleAppender to a RollingFileAppender using the current configuration
    * settings.
    *
-   * @param logFilePath The path to the log files.
+   * @param filePath The path to the log files.
    * @param logConfigFile The path to the log4j configuration file.
    * @param logLevel The log level to be used.
    */
   public static void activateRollingFileAppender(
-      String logFilePath, String logConfigFile, String logLevel) {
+      String filePath, String logConfigFile, String logLevel) {
+    logFilePath = filePath;
 //    synchronized (managedLoggers) {
 //      try {
 //        LoggerFactory.logLevel = logLevel;
