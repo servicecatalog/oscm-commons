@@ -1,3 +1,7 @@
+/*******************************************************************************
+ *  Copyright FUJITSU LIMITED 2020
+ *******************************************************************************/
+
 package org.oscm.email;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
