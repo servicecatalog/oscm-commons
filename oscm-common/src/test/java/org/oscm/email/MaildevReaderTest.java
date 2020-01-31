@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
+
 public class MaildevReaderTest {
 
     private final static Random RANDOM = new Random();
@@ -33,7 +37,7 @@ public class MaildevReaderTest {
     ObjectMapper mapper;
 
     @Before
-    public void setup(){
+    public void setup() {
         this.maildevHost = "http://localhost:8082";
         this.maildevEmailPath = this.maildevHost + "/email";
         this.reader = new MaildevReader(maildevHost);
@@ -95,7 +99,7 @@ public class MaildevReaderTest {
         assertEquals(email, returnedEmail);
     }
 
-    private static Email generateEmail(String subject, Date date , String text){
+    private static Email generateEmail(String subject, Date date, String text) {
         final Email email = new Email();
         email.setSubject(subject);
         email.setDate(date);
@@ -103,7 +107,7 @@ public class MaildevReaderTest {
         return email;
     }
 
-    private static Email generateEmail(String subject){
+    private static Email generateEmail(String subject) {
         final Email email = new Email();
         email.setSubject(subject);
         email.setDate(Date.from(Instant.now()));
