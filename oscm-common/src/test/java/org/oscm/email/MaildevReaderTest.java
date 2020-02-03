@@ -106,7 +106,7 @@ public class MaildevReaderTest {
     private static Email generateEmail(String subject, Date date, String text) {
         final Email email = new Email();
         email.setSubject(subject);
-        email.setDate(date);
+        email.setTime(date);
         email.setText(text);
         return email;
     }
@@ -114,7 +114,7 @@ public class MaildevReaderTest {
     private static Email generateEmail(String subject) {
         final Email email = new Email();
         email.setSubject(subject);
-        email.setDate(Date.from(Instant.now()));
+        email.setTime(Date.from(Instant.now()));
         email.setText(String.valueOf(RANDOM.nextDouble()));
         return email;
     }
