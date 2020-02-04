@@ -24,7 +24,7 @@ public class MaildevReader {
         final Email[] emails = objectMapper.readValue(new URL(maildevEmailPath), Email[].class);
         return Arrays.stream(emails)
                 .filter(email -> email.getSubject().equals(subject))
-                .max(Comparator.comparing(Email::getDate))
+                .max(Comparator.comparing(Email::getTime))
                 .orElse(null);
     }
 

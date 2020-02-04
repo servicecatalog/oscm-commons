@@ -17,6 +17,6 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Email {
     private String subject;
-    private Date date;
+    private Date time;
     private String text;
 }
