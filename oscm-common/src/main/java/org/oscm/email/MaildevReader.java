@@ -51,6 +51,20 @@ public class MaildevReader {
     return new String[] {userKey, userPwd};
   }
 
+  public String readKeyFromEmail(String userName) throws IOException {
+    String userKey = null;
+
+    Email email = getLatestEmailBySubject(MAIL_SUBJECT_USER_ACCOUNT_CREATED_EN);
+    String message = email.getText();
+
+    String userNameFromEmail = readInformationFromGivenMail(MAIL_BODY_USERNAME_PATTERN_EN, message);
+    if (userName.equals(userNameFromEmail)) {
+      userKey = readInformationFromGivenMail(MAIL_BODY_KEY_PATTERN_EN, message);
+    }
+
+    return userKey;
+  }
+
   private String readInformationFromGivenMail(String pattern, String mailContent) {
     String information = mailContent;
     int idx = information.indexOf(pattern);
