@@ -19,6 +19,7 @@ import org.oscm.identity.model.ErrorInfo;
 import org.oscm.identity.model.GroupInfo;
 import org.oscm.identity.model.UserInfo;
 import org.oscm.identity.validator.IdentityValidator;
+import org.oscm.internal.types.exception.IllegalArgumentException;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.client.Client;
@@ -120,7 +121,8 @@ public class IdentityClientTest {
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("some@user.com");
 
-    assertThatExceptionOfType(IdentityClientException.class).isThrownBy(() -> identityClient.updateUser(userInfo));
+    assertThatExceptionOfType(IdentityClientException.class)
+        .isThrownBy(() -> identityClient.updateUser(userInfo));
   }
 
   @Test
@@ -133,13 +135,31 @@ public class IdentityClientTest {
     assertThatCode(() -> identityClient.updateUser(userInfo)).doesNotThrowAnyException();
   }
 
+  @Test
+  public void deleteGroupSuccessTest() throws IdentityClientException {
+    final String groupId = "groupId";
+    when(response.getStatus()).thenReturn(Response.Status.NO_CONTENT.getStatusCode());
+
+    identityClient.deleteGroup(groupId);
+
+    assertThatCode(() -> identityClient.deleteGroup(groupId)).doesNotThrowAnyException();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void deleteGroupEmptyGroupIdTest() throws IdentityClientException {
+    final String groupId = "";
+    identityClient.deleteGroup(groupId);
+  }
+
   private void mockHttpRequestCreation() {
     when(client.target(anyString())).thenReturn(webTarget);
     when(webTarget.path(anyString())).thenReturn(webTarget);
     when(webTarget.request(anyString())).thenReturn(builder);
+    when(webTarget.request()).thenReturn(builder);
     when(builder.header(any(), any())).thenReturn(builder);
     when(builder.get()).thenReturn(response);
     when(builder.post(any())).thenReturn(response);
     when(builder.put(any())).thenReturn(response);
+    when(builder.delete()).thenReturn(response);
   }
 }
