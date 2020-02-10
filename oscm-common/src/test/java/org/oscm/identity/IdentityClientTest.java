@@ -147,8 +147,7 @@ public class IdentityClientTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void deleteGroupEmptyGroupIdTest() throws IdentityClientException {
-    final String groupId = "";
-    identityClient.deleteGroup(groupId);
+    identityClient.deleteGroup("");
   }
 
   private void mockHttpRequestCreation() {
