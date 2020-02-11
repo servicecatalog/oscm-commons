@@ -1,20 +1,17 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  *
- * <p>Copyright FUJITSU LIMITED 2019
+ *  Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: 18.09.2019
+ *  Creation Date: 18.09.2019
  *
- * <p>*****************************************************************************
- */
+ *******************************************************************************/
 package org.oscm.identity;
-
-import lombok.Getter;
-import lombok.Setter;
-import org.oscm.identity.exception.IdentityClientException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
+import org.oscm.identity.exception.IdentityClientException;
+import org.oscm.identity.model.UserInfo;
 
 /** Class responsible for building oscm-identity related endpoints */
 public class IdentityUrlBuilder {
@@ -23,7 +20,7 @@ public class IdentityUrlBuilder {
     this.tenantId = tenantId;
   }
 
-  @Getter @Setter private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
+  private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
   private static String RESOURCE_TENANTS = "tenants";
   private static String RESOURCE_USERS = "users";
   private static String RESOURCE_GROUPS = "groups";
@@ -125,15 +122,16 @@ public class IdentityUrlBuilder {
 
     return url;
   }
-
+  
   /**
    * Builds an URL encoded path from given group name
-   *
+   * 
    * @param groupName - the group name to be encoded
    * @return the URL encoded path
    */
   public String buildGroupPath(String groupName) throws IdentityClientException {
-    String path = new StringBuilder(OSCM_PREFIX).append(groupName).toString();
+    String path = new StringBuilder(OSCM_PREFIX)
+            .append(groupName).toString();
     try {
       return URLEncoder.encode(path, "UTF-8");
     } catch (UnsupportedEncodingException e) {
@@ -183,15 +181,15 @@ public class IdentityUrlBuilder {
             .toString();
     return url;
   }
-
+  
   /**
    * Builds url for retrieving groups through oscm-identity
    *
    * @return url
    */
   public String buildGroupsUrl() {
-
-    String url =
+  
+      String url =
         new StringBuilder(HOSTNAME)
             .append("/")
             .append(RESOURCE_TENANTS)
@@ -222,12 +220,12 @@ public class IdentityUrlBuilder {
    */
   public String getUpdateUserUrl() {
     return new StringBuilder(HOSTNAME)
-        .append("/")
-        .append(RESOURCE_TENANTS)
-        .append("/")
-        .append(tenantId)
-        .append("/")
-        .append(RESOURCE_USERS)
-        .toString();
+            .append("/")
+            .append(RESOURCE_TENANTS)
+            .append("/")
+            .append(tenantId)
+            .append("/")
+            .append(RESOURCE_USERS)
+            .toString();
   }
 }
