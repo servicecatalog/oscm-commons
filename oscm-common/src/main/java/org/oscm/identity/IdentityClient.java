@@ -373,7 +373,7 @@ public abstract class IdentityClient {
     String accessToken = getAccessToken(AccessType.IDP);
     IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
 
-    String url = builder.buildGroupsUrl();
+    String url = builder.buildGroupsUrl() + "/" + groupId;
 
     Response response =
         client
