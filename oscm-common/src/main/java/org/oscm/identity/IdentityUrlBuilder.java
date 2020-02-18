@@ -7,12 +7,11 @@
  *******************************************************************************/
 package org.oscm.identity;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.oscm.identity.exception.IdentityClientException;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
+import org.oscm.identity.exception.IdentityClientException;
+import org.oscm.identity.model.UserInfo;
 
 /** Class responsible for building oscm-identity related endpoints */
 public class IdentityUrlBuilder {
@@ -21,7 +20,7 @@ public class IdentityUrlBuilder {
     this.tenantId = tenantId;
   }
 
-  @Getter @Setter private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
+  private static String HOSTNAME = "http://oscm-identity:9090/oscm-identity";
   private static String RESOURCE_TENANTS = "tenants";
   private static String RESOURCE_USERS = "users";
   private static String RESOURCE_GROUPS = "groups";
