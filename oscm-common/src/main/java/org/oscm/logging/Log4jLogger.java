@@ -12,15 +12,15 @@
 
 package org.oscm.logging;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * This utility class provides the logging functionality to be used by the
@@ -76,22 +76,18 @@ public class Log4jLogger {
      */
     Log4jLogger(Class<?> category, Locale locale) {
         this.locale = locale;
-        systemLogger = Logger.getLogger(SYSTEM_LOG_CATEGORY_SUFFIX + "."
+        systemLogger = LogManager.getLogger(SYSTEM_LOG_CATEGORY_SUFFIX + "."
                 + category.getName());
-        systemLogger.setAdditivity(false);
-        accessLogger = Logger.getLogger(ACCESS_LOG_CATEGORY_SUFFIX + "."
+        accessLogger = LogManager.getLogger(ACCESS_LOG_CATEGORY_SUFFIX + "."
                 + category.getName());
-        accessLogger.setAdditivity(false);
-        auditLogger = Logger.getLogger(AUDIT_LOG_CATEGORY_SUFFIX + "."
+        auditLogger = LogManager.getLogger(AUDIT_LOG_CATEGORY_SUFFIX + "."
                 + category.getName());
-        auditLogger.setAdditivity(false);
-        proxyLogger = Logger.getLogger(REVERSEPROXY_LOG_CATEGORY_SUFFIX + "."
+        proxyLogger = LogManager.getLogger(REVERSEPROXY_LOG_CATEGORY_SUFFIX + "."
                 + category.getName());
-        proxyLogger.setAdditivity(false);
     }
 
     /**
-     * Logs an information with log type {@link Level#INFO}. The information is
+     * Logs an information with log type . The information is
      * written to the log files specified.
      * 
      * @param logTargets
