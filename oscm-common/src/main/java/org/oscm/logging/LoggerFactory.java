@@ -55,7 +55,7 @@ public class LoggerFactory {
   private static final String reverseProxyLogAppenderName = "ReverseProxyLogAppender";
 
   private static ConsoleAppender consoleAppender;
-  private static boolean switchedToFileAppender = false;
+  private static boolean switchedToFileAppender = true;
 
   public static Log4jLogger getLogger(Class<?> category) {
     return getLogger(category, Locale.getDefault());
