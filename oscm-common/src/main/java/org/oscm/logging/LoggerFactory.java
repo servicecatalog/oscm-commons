@@ -20,6 +20,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -55,7 +56,7 @@ public class LoggerFactory {
   private static final String reverseProxyLogAppenderName = "ReverseProxyLogAppender";
 
   private static ConsoleAppender consoleAppender;
-  private static boolean switchedToFileAppender = true;
+  private static boolean switchedToFileAppender = false;
 
   public static Log4jLogger getLogger(Class<?> category) {
     return getLogger(category, Locale.getDefault());
@@ -87,12 +88,21 @@ public class LoggerFactory {
   public static void activateRollingFileAppender(
       String logFilePath, String logConfigFile, String logLevel) {
 
-    LoggerFactory.logLevel = logLevel;
-    LoggerFactory.logFilePath = logFilePath;
-    LoggerFactory.logConfigPath = logConfigFile;
+    synchronized (managedLoggers) {
+      LoggerFactory.logLevel = logLevel;
+      LoggerFactory.logFilePath = logFilePath;
+      LoggerFactory.logConfigPath = logConfigFile;
 
-    initAppenders();
-    switchedToFileAppender = true;
+      initAppenders();
+
+      Iterator<Class<?>> iterator = managedLoggers.keySet().iterator();
+      while (iterator.hasNext()) {
+        Class<?> loggerName = iterator.next();
+        Log4jLogger logger = managedLoggers.get(loggerName);
+        setFileAppendersForLogger(logger);
+      }
+      switchedToFileAppender = true;
+    }
   }
 
   private static void initAppenders() {
