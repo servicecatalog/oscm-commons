@@ -56,7 +56,6 @@ public class LoggerFactory {
   private static final String auditLogAppenderName = "AuditLogAppender";
   private static final String reverseProxyLogAppenderName = "ReverseProxyLogAppender";
 
-  private static ConsoleAppender consoleAppender;
   private static boolean switchedToFileAppender = false;
 
   private static Logger LOGGER = LogManager.getLogger(LoggerFactory.class);
@@ -67,15 +66,10 @@ public class LoggerFactory {
 
   public static Log4jLogger getLogger(Class<?> category, Locale locale) {
 
-    LOGGER.info("Initializing Logger:" + category.getName());
-    LOGGER.info("File appender:" + switchedToFileAppender);
-
     synchronized (managedLoggers) {
       Log4jLogger logger = new Log4jLogger(category, locale);
       if (switchedToFileAppender) {
         setFileAppendersForLogger(logger);
-      } else {
-        setConsoleAppenderForLogger(logger);
       }
       if (!managedLoggers.containsKey(category)) {
         managedLoggers.put(category, logger);
@@ -94,8 +88,6 @@ public class LoggerFactory {
    */
   public static void activateRollingFileAppender(
       String logFilePath, String logConfigFile, String logLevel) {
-
-    LOGGER.info("Activating file appenders........");
 
     synchronized (managedLoggers) {
       LoggerFactory.logLevel = logLevel;
@@ -116,7 +108,6 @@ public class LoggerFactory {
 
   private static void initAppenders() {
 
-    LOGGER.info("Initializing file appenders........");
     final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     final Configuration config = ctx.getConfiguration();
 
@@ -127,7 +118,7 @@ public class LoggerFactory {
   }
 
   private static void setFileAppendersForLogger(Log4jLogger logger) {
-    LOGGER.info("Setting file appenders");
+
     Level level = determineLogLevel(logLevel);
 
     String systemLoggerName = logger.systemLogger.getName();
@@ -141,28 +132,20 @@ public class LoggerFactory {
     LoggerConfig systemLoggerConfig = new LoggerConfig(systemLoggerName, level, false);
     systemLoggerConfig.addAppender(systemLogAppender, level, null);
     config.addLogger(systemLoggerName, systemLoggerConfig);
-    LOGGER.info("Setting file  for " + systemLoggerName);
 
     LoggerConfig accessLoggerConfig = new LoggerConfig(accessLoggerName, level, false);
     accessLoggerConfig.addAppender(accessLogAppender, level, null);
     config.addLogger(accessLoggerName, accessLoggerConfig);
-    LOGGER.info("Setting file appender for " + accessLoggerName);
 
     LoggerConfig auditLoggerConfig = new LoggerConfig(auditLoggerName, level, false);
     auditLoggerConfig.addAppender(auditLogAppender, level, null);
     config.addLogger(auditLoggerName, auditLoggerConfig);
-    LOGGER.info("Setting file appender for " + auditLoggerName);
 
     LoggerConfig proxyLoggerConfig = new LoggerConfig(proxyLoggerName, level, false);
     proxyLoggerConfig.addAppender(reverseProxyLogAppender, level, null);
     config.addLogger(proxyLoggerName, proxyLoggerConfig);
-    LOGGER.info("Setting file appender for " + proxyLoggerName);
 
     ctx.updateLoggers();
-  }
-
-  private static void setConsoleAppenderForLogger(Log4jLogger logger) {
-    // TODO: set console appender for loggers
   }
 
   /**
