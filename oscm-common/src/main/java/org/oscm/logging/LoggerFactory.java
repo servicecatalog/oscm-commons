@@ -13,13 +13,15 @@ package org.oscm.logging;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -57,8 +59,6 @@ public class LoggerFactory {
   private static final String reverseProxyLogAppenderName = "ReverseProxyLogAppender";
 
   private static boolean switchedToFileAppender = false;
-
-  private static Logger LOGGER = LogManager.getLogger(LoggerFactory.class);
 
   public static Log4jLogger getLogger(Class<?> category) {
     return getLogger(category, Locale.getDefault());
@@ -111,14 +111,29 @@ public class LoggerFactory {
     final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     final Configuration config = ctx.getConfiguration();
 
-    systemLogAppender = config.getAppender(systemLogAppenderName);
-    accessLogAppender = config.getAppender(accessLogAppenderName);
-    auditLogAppender = config.getAppender(auditLogAppenderName);
-    reverseProxyLogAppender = config.getAppender(reverseProxyLogAppenderName);
+    systemLogAppender = initFileAppender(systemLogAppenderName, "system.log");
+    accessLogAppender = initFileAppender(accessLogAppenderName, "access.log");
+    auditLogAppender = initFileAppender(auditLogAppenderName, "audit.log");
+    reverseProxyLogAppender = initFileAppender(reverseProxyLogAppenderName, "reverseproxy.log");
+
+    config.addAppender(systemLogAppender);
+    config.addAppender(accessLogAppender);
+    config.addAppender(auditLogAppender);
+    config.addAppender(reverseProxyLogAppender);
+  }
+
+  private static FileAppender initFileAppender(String appenderName, String filename) {
+    FileAppender appender =
+        FileAppender.newBuilder()
+            .withName(appenderName)
+            .withFileName(logFilePath + File.separatorChar + filename)
+            .withLayout(getLayout())
+            .build();
+    appender.start();
+    return appender;
   }
 
   private static void setFileAppendersForLogger(Log4jLogger logger) {
-
     Level level = determineLogLevel(logLevel);
 
     String systemLoggerName = logger.systemLogger.getName();
@@ -129,23 +144,25 @@ public class LoggerFactory {
     final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     final Configuration config = ctx.getConfiguration();
 
-    LoggerConfig systemLoggerConfig = new LoggerConfig(systemLoggerName, level, false);
-    systemLoggerConfig.addAppender(systemLogAppender, level, null);
+    LoggerConfig systemLoggerConfig = initLogger(systemLoggerName, systemLogAppender, level);
     config.addLogger(systemLoggerName, systemLoggerConfig);
 
-    LoggerConfig accessLoggerConfig = new LoggerConfig(accessLoggerName, level, false);
-    accessLoggerConfig.addAppender(accessLogAppender, level, null);
+    LoggerConfig accessLoggerConfig = initLogger(accessLoggerName, accessLogAppender, level);
     config.addLogger(accessLoggerName, accessLoggerConfig);
 
-    LoggerConfig auditLoggerConfig = new LoggerConfig(auditLoggerName, level, false);
-    auditLoggerConfig.addAppender(auditLogAppender, level, null);
+    LoggerConfig auditLoggerConfig = initLogger(auditLoggerName, auditLogAppender, level);
     config.addLogger(auditLoggerName, auditLoggerConfig);
 
-    LoggerConfig proxyLoggerConfig = new LoggerConfig(proxyLoggerName, level, false);
-    proxyLoggerConfig.addAppender(reverseProxyLogAppender, level, null);
+    LoggerConfig proxyLoggerConfig = initLogger(proxyLoggerName, reverseProxyLogAppender, level);
     config.addLogger(proxyLoggerName, proxyLoggerConfig);
 
     ctx.updateLoggers();
+  }
+
+  private static LoggerConfig initLogger(String loggerName, Appender appender, Level level) {
+    LoggerConfig loggerConfig = new LoggerConfig(loggerName, level, false);
+    loggerConfig.addAppender(appender, level, null);
+    return loggerConfig;
   }
 
   /**
@@ -167,5 +184,16 @@ public class LoggerFactory {
       level = Level.INFO;
     }
     return level;
+  }
+
+  /**
+   * Returns the log message layout according to the product requirements.
+   *
+   * @return The message layout.
+   */
+  private static Layout getLayout() {
+    return PatternLayout.newBuilder()
+        .withPattern("%d{MM/dd/yyyy_HH:mm:ss.SSS} FSP_INTS-BSS: %p: ThreadID %t: %c{1}: %m%n")
+        .build();
   }
 }
