@@ -16,14 +16,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.rolling.DefaultRolloverStrategy;
+import org.apache.logging.log4j.core.appender.rolling.RolloverStrategy;
+import org.apache.logging.log4j.core.appender.rolling.SizeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -38,25 +40,16 @@ public class LoggerFactory {
   public static final String WARN_LOG_LEVEL = "WARN";
   public static final String ERROR_LOG_LEVEL = "ERROR";
 
-  private static HashMap<Class<?>, Log4jLogger> managedLoggers =
-      new HashMap<Class<?>, Log4jLogger>();
-
-  private static final int MAX_BACKUP_INDEX = 5;
-  private static final String MAX_FILE_SIZE = "10MB";
+  private static final HashMap<Class<?>, Log4jLogger> managedLoggers = new HashMap<>();
 
   private static String logLevel;
   private static String logFilePath;
   private static String logConfigPath;
 
-  private static FileAppender systemLogAppender;
-  private static FileAppender accessLogAppender;
-  private static FileAppender auditLogAppender;
-  private static FileAppender reverseProxyLogAppender;
-
-  private static final String systemLogAppenderName = "SystemLogAppender";
-  private static final String accessLogAppenderName = "AccessLogAppender";
-  private static final String auditLogAppenderName = "AuditLogAppender";
-  private static final String reverseProxyLogAppenderName = "ReverseProxyLogAppender";
+  private static Appender systemLogAppender;
+  private static Appender accessLogAppender;
+  private static Appender auditLogAppender;
+  private static Appender proxyLogAppender;
 
   private static boolean switchedToFileAppender = false;
 
@@ -96,9 +89,7 @@ public class LoggerFactory {
 
       initAppenders();
 
-      Iterator<Class<?>> iterator = managedLoggers.keySet().iterator();
-      while (iterator.hasNext()) {
-        Class<?> loggerName = iterator.next();
+      for (Class<?> loggerName : managedLoggers.keySet()) {
         Log4jLogger logger = managedLoggers.get(loggerName);
         setFileAppendersForLogger(logger);
       }
@@ -107,29 +98,32 @@ public class LoggerFactory {
   }
 
   private static void initAppenders() {
-
     final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     final Configuration config = ctx.getConfiguration();
 
-    systemLogAppender = initFileAppender(systemLogAppenderName, "system.log");
-    accessLogAppender = initFileAppender(accessLogAppenderName, "access.log");
-    auditLogAppender = initFileAppender(auditLogAppenderName, "audit.log");
-    reverseProxyLogAppender = initFileAppender(reverseProxyLogAppenderName, "reverseproxy.log");
-
-    config.addAppender(systemLogAppender);
-    config.addAppender(accessLogAppender);
-    config.addAppender(auditLogAppender);
-    config.addAppender(reverseProxyLogAppender);
+    systemLogAppender = initRollingFileAppender(config, AppenderConfiguration.SYSTEM_LOG_APPENDER);
+    accessLogAppender = initRollingFileAppender(config, AppenderConfiguration.ACCESS_LOG_APPENDER);
+    auditLogAppender = initRollingFileAppender(config, AppenderConfiguration.AUDIT_LOG_APPENDER);
+    proxyLogAppender = initRollingFileAppender(config, AppenderConfiguration.PROXY_LOG_APPENDER);
   }
 
-  private static FileAppender initFileAppender(String appenderName, String filename) {
-    FileAppender appender =
-        FileAppender.newBuilder()
-            .withName(appenderName)
-            .withFileName(logFilePath + File.separatorChar + filename)
+  private static Appender initRollingFileAppender(
+      Configuration configuration, AppenderConfiguration appenderConfiguration) {
+
+    RollingFileAppender appender =
+        RollingFileAppender.newBuilder()
+            .withName(appenderConfiguration.getName())
+            .withFileName(logFilePath + File.separatorChar + appenderConfiguration.getFileName())
+            .withFilePattern(
+                logFilePath + File.separatorChar + appenderConfiguration.getFilePattern())
             .withLayout(getLayout())
+            .withPolicy(
+                SizeBasedTriggeringPolicy.createPolicy(AppenderConfiguration.getMaxFileSize()))
+            .withStrategy(getRolloverStrategy(configuration))
             .build();
     appender.start();
+
+    configuration.addAppender(appender);
     return appender;
   }
 
@@ -153,7 +147,7 @@ public class LoggerFactory {
     LoggerConfig auditLoggerConfig = initLogger(auditLoggerName, auditLogAppender, level);
     config.addLogger(auditLoggerName, auditLoggerConfig);
 
-    LoggerConfig proxyLoggerConfig = initLogger(proxyLoggerName, reverseProxyLogAppender, level);
+    LoggerConfig proxyLoggerConfig = initLogger(proxyLoggerName, proxyLogAppender, level);
     config.addLogger(proxyLoggerName, proxyLoggerConfig);
 
     ctx.updateLoggers();
@@ -180,8 +174,6 @@ public class LoggerFactory {
       level = Level.WARN;
     } else if (ERROR_LOG_LEVEL.equals(logLevel)) {
       level = Level.ERROR;
-    } else if (INFO_LOG_LEVEL.equals(logLevel)) {
-      level = Level.INFO;
     }
     return level;
   }
@@ -192,8 +184,19 @@ public class LoggerFactory {
    * @return The message layout.
    */
   private static Layout getLayout() {
-    return PatternLayout.newBuilder()
-        .withPattern("%d{MM/dd/yyyy_HH:mm:ss.SSS} FSP_INTS-BSS: %p: ThreadID %t: %c{1}: %m%n")
+    return PatternLayout.newBuilder().withPattern(AppenderConfiguration.getPatternLayout()).build();
+  }
+
+  /**
+   * Retrieves default rollover strategy for rolling file appenders.
+   *
+   * @param configuration log4j2 configuration context
+   * @return The rollover strategy
+   */
+  private static RolloverStrategy getRolloverStrategy(Configuration configuration) {
+    return DefaultRolloverStrategy.newBuilder()
+        .withMax(AppenderConfiguration.getMaxBackupIndex())
+        .withConfig(configuration)
         .build();
   }
 }
