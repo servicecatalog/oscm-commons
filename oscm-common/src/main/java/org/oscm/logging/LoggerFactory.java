@@ -150,6 +150,7 @@ public class LoggerFactory {
     LoggerConfig systemLoggerConfig = initLogger(systemLoggerName, systemLogAppender, level);
     config.addLogger(systemLoggerName, systemLoggerConfig);
 
+    System.out.println("Adding " + accessLogAppender.getName() + " to "+ accessLoggerName);
     LoggerConfig accessLoggerConfig = initLogger(accessLoggerName, accessLogAppender, level);
     config.addLogger(accessLoggerName, accessLoggerConfig);
 
