@@ -93,7 +93,7 @@ public class LoggerFactory {
       LoggerFactory.logFilePath = logFilePath;
       LoggerFactory.logConfigPath = logConfigFile;
       FACTORY_LOGGER.info("LOG: Initiating appenders,  file" + logFilePath);
-      System.out.println("STDOUT: Initiating appenders,  file" + logFilePath);
+
       initAppenders();
 
       for (Class<?> loggerName : managedLoggers.keySet()) {
@@ -118,7 +118,8 @@ public class LoggerFactory {
 
   private static Appender initRollingFileAppender(
       Configuration configuration, AppenderConfiguration appenderConfiguration) {
-
+    System.out.println("STDOUT: Initiating appenders");
+    System.out.println(logFilePath + File.separatorChar + appenderConfiguration.getFileName());
     RollingFileAppender appender =
         RollingFileAppender.newBuilder()
             .withName(appenderConfiguration.getName())
