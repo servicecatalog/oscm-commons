@@ -140,6 +140,7 @@ public class LoggerFactory {
   private static void setFileAppendersForLogger(Log4jLogger logger) {
     Level level = determineLogLevel(logLevel);
 
+    System.out.println("LEVEL:" + level.toString());
     String systemLoggerName = logger.systemLogger.getName();
     String accessLoggerName = logger.accessLogger.getName();
     String auditLoggerName = logger.auditLogger.getName();
