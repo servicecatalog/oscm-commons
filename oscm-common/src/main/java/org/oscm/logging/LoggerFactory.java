@@ -13,6 +13,7 @@ package org.oscm.logging;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -42,6 +43,8 @@ public class LoggerFactory {
 
   private static final HashMap<Class<?>, Log4jLogger> managedLoggers = new HashMap<>();
 
+  private static Logger FACTORY_LOGGER = LogManager.getLogger(LoggerFactory.class);
+
   private static String logLevel;
   private static String logFilePath;
   private static String logConfigPath;
@@ -67,6 +70,9 @@ public class LoggerFactory {
       if (!managedLoggers.containsKey(category)) {
         managedLoggers.put(category, logger);
       }
+
+      FACTORY_LOGGER.info("LOG: New loggers for class: " + category + "created");
+      System.out.println("STDOUT: New loggers for class: " + category + "created");
       return logger;
     }
   }
@@ -86,11 +92,14 @@ public class LoggerFactory {
       LoggerFactory.logLevel = logLevel;
       LoggerFactory.logFilePath = logFilePath;
       LoggerFactory.logConfigPath = logConfigFile;
-
+      FACTORY_LOGGER.info("LOG: Initiating appenders,  file" + logFilePath);
+      System.out.println("STDOUT: Initiating appenders,  file" + logFilePath);
       initAppenders();
 
       for (Class<?> loggerName : managedLoggers.keySet()) {
         Log4jLogger logger = managedLoggers.get(loggerName);
+        FACTORY_LOGGER.info("LOG: Setting appenders for logger:" + loggerName);
+        System.out.println("STDOUT: Setting appenders for logger:" + loggerName);
         setFileAppendersForLogger(logger);
       }
       switchedToFileAppender = true;
