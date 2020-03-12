@@ -360,4 +360,27 @@ public abstract class IdentityClient {
     if (user.getUserId() == null || user.getUserId().isEmpty())
       throw new ValidationException("UserId should not be null nor empty!");
   }
+
+  /**
+   * Delete provided group
+   *
+   * @param groupId id of the group
+   */
+  public void deleteGroup(String groupId) throws IdentityClientException {
+
+    validate(configuration);
+    ArgumentValidator.notEmptyString("groupId", groupId);
+    String accessToken = getAccessToken(AccessType.IDP);
+    IdentityUrlBuilder builder = new IdentityUrlBuilder(configuration.getTenantId());
+
+    String url = builder.buildGroupsUrl() + "/" + groupId;
+
+    Response response =
+        client
+            .target(url)
+            .request()
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .delete();
+    IdentityClientHelper.handleResponse(response, url);
+  }
 }
