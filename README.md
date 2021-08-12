@@ -1,4 +1,4 @@
-[![Build status](https://travis-ci.com/servicecatalog/oscm-commons.svg?branch=master)](https://travis-ci.com/servicecatalog/oscm-commons)
+[![Maven](https://github.com/servicecatalog/oscm-commons/actions/workflows/maven.yml/badge.svg)](https://github.com/servicecatalog/oscm-commons/actions)
 [![artifacts](https://jitpack.io/v/servicecatalog/oscm-commons.svg)](https://jitpack.io/#servicecatalog/oscm-commons)
 # oscm-commons
 
